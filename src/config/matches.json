@@ -1,0 +1,59 @@
+{
+  "users": {
+    "userId1": {
+      "id": "string",
+      "name": "string",
+      "online": "boolean",
+      "currentMatch": "string | null",
+      "lastSeen": "number"
+    }
+  },
+  "matchPool": {
+    "orderId1": {
+      "orderId": "string",
+      "userId": "string",  
+      "timestamp": "number",
+      "status": "waiting | matched",
+      "dramaPreference": "string | null"
+    }
+  },
+  "matches": {
+    "matchId1": {
+      "id": "string",
+      "players": ["userId1", "userId2"],
+      "playerNames": {
+        "userId1": "string",
+        "userId2": "string"
+      },
+      "playerRoles": {
+        "userId1": "string",
+        "userId2": "string"
+      },
+      "status": "selecting | ready | performing | ended",
+      "stage": "drama | character | performing",
+      "selectedDrama": "string",
+      "selections": {
+        "userId1": {
+          "drama": "string",
+          "character": "string",
+          "ready": "boolean",
+          "lastUpdate": "number"
+        }
+      },
+      "performance": {
+        "currentNodeId": "string",
+        "timeline": [],
+        "lastChoice": {
+          "playerId": "string",
+          "nodeId": "string",
+          "choiceIndex": "number",
+          "timestamp": "number"
+        },
+        "status": "playing | paused | ended",
+        "waitingFor": "string"
+      },
+      "createdAt": "number",
+      "updatedAt": "number"
+    }
+  }
+}
