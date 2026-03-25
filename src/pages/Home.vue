@@ -225,11 +225,13 @@ function gotoCreate() {
   font-weight: bold;
   color: #8a4d07;
   cursor: pointer;
+  margin-top:90px;
   padding-bottom: 20px;
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index:100;
 }
 
 .tip-button:hover {
