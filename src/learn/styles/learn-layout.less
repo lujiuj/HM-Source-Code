@@ -1,0 +1,78 @@
+/* learn-layout.less — 学戏模块共享布局 */
+
+.learn-page-root {
+  min-height: 100vh;
+  position: relative;
+  background-color: #FDFBF7;
+  background-image: radial-gradient(#E5E1D8 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  color: var(--learn-ink-900);
+  font-family: var(--learn-font-body);
+}
+
+.learn-page-content {
+  position: relative;
+  z-index: 1;
+  width: min(var(--learn-layout-max-width, 1400px), calc(100vw - 48px));
+  margin: 0 auto;
+  padding: 0 0 48px;
+  animation: fadeIn 0.35s ease-out;
+}
+
+.learn-glass-section {
+  background: rgba(255, 251, 245, 0.68);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 248, 235, 0.5);
+  border-radius: var(--learn-radius-card, 12px);
+  box-shadow: var(--learn-shadow-soft);
+  padding: clamp(24px, 4vw, 36px);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.learn-glass-section:hover {
+  box-shadow: var(--learn-shadow-hover);
+  background: rgba(255, 251, 245, 0.78);
+}
+
+/* 典雅卡片通用 */
+.learn-oriental-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--learn-radius-card, 12px);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+  cursor: pointer;
+}
+
+.learn-oriental-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.learn-oriental-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(163, 65, 53, 0.1);
+}
+
+.shufa-text {
+  font-family: var(--learn-font-display);
+  letter-spacing: 0.03em;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 16:9 desktop first-screen control */
+@media (min-width: 1024px) and (min-height: 600px) {
+  .learn-first-screen {
+    max-height: calc(100vh - 80px);
+    overflow: hidden;
+  }
+}

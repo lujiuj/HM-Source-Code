@@ -1,0 +1,311 @@
+/* learn-theme.less — 学戏模块设计令牌与全局工具类（朱砂红设计体系） */
+
+:global(:root) {
+  /* ── 字体 ── */
+  --learn-font-display: "LXGW WenKai", "Noto Serif SC", "STZhongsong", "Songti SC", "SimSun", serif;
+  --learn-font-body: "LXGW WenKai", "Noto Serif SC", "Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
+  --learn-calligraphy: "LXGW WenKai", "STKaiti", "KaiTi", cursive;
+
+  /* ── 墨色层级 ── */
+  --learn-ink-900: #2b2622;
+  --learn-ink-700: #544d47;
+  --learn-ink-500: #827b75;
+
+  /* ── 纸面/背景 ── */
+  --learn-paper: #f9f2e6;
+  --learn-paper-soft: rgba(249, 242, 230, 0.84);
+  --learn-paper-glass: rgba(249, 242, 230, 0.72);
+
+  /* ── 表面色阶 ── */
+  --learn-surface-1: #fffaf3;
+  --learn-surface-2: #fdf4e8;
+  --learn-surface-3: #f6ead9;
+  --learn-surface-warm: #efdfc6;
+  --learn-shell-bg: #f9f2e6;
+
+  /* ── 主色 ── */
+  --learn-primary: #a34135;
+  --learn-primary-dark: #8B3232;
+  --learn-primary-light: #f1d8d5;
+  --learn-gold: #D4AF37;
+  --learn-stone: #736D61;
+  --learn-vermilion: #a62c2b;
+  --learn-cinnabar: #a34135;
+
+  --learn-panel-strong: rgba(255, 251, 244, 0.94);
+  --learn-panel-soft: rgba(255, 249, 242, 0.88);
+  --learn-accent-soft: rgba(163, 65, 53, 0.08);
+
+  --learn-bg: linear-gradient(180deg, #faf4ea 0%, #f5ebde 54%, #eedfce 100%);
+
+  /* ── 边框 ── */
+  --learn-border-soft: rgba(163, 65, 53, 0.12);
+  --learn-border-strong: rgba(163, 65, 53, 0.25);
+  --learn-border-cinnabar: rgba(163, 65, 53, 0.18);
+
+  /* ── 阴影 ── */
+  --learn-shadow-soft: 0 1px 3px rgba(92, 74, 58, 0.05);
+  --learn-shadow-hover: 0 4px 12px rgba(92, 74, 58, 0.08);
+  --learn-shadow-strong: 0 8px 24px rgba(92, 74, 58, 0.12);
+  --learn-shadow-glow: 0 0 0 1px rgba(163, 65, 53, 0.15), 0 8px 24px rgba(163, 65, 53, 0.1);
+
+  /* ── 圆角 ── */
+  --learn-radius-sm: 8px;
+  --learn-radius-md: 12px;
+  --learn-radius-lg: 16px;
+  --learn-radius-xl: 20px;
+  --learn-radius-card: 12px;
+
+  /* ── 布局与节奏 ── */
+  --learn-layout-max-width: 1400px;
+  --learn-layout-padding-x: clamp(24px, 4vw, 40px);
+  --learn-layout-section-gap: clamp(40px, 6vw, 80px);
+  --learn-layout-element-gap: clamp(16px, 2vw, 24px);
+  --learn-layout-header-height: 56px;
+}
+
+/* ── 页面基底 ── */
+:global(.learn-cinematic-page) {
+  position: relative;
+  font-family: var(--learn-font-body);
+  color: var(--learn-ink-900);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+:global(.learn-cinematic-page h1),
+:global(.learn-cinematic-page h2),
+:global(.learn-cinematic-page h3),
+:global(.learn-cinematic-page .learn-title-font) {
+  font-family: var(--learn-font-display);
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+/* ── 书法字 ── */
+:global(.shufa) {
+  font-family: var(--learn-calligraphy);
+}
+
+/* ── 篆印标题 ── */
+:global(.seal-title) {
+  position: relative;
+  padding-left: 16px;
+}
+:global(.seal-title::before) {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 1.4em;
+  background: var(--learn-primary);
+  border-radius: 2px;
+}
+
+/* ── 纹理卡片 ── */
+:global(.card-texture) {
+  border: 1px solid rgba(255, 248, 235, 0.6);
+  box-shadow: var(--learn-shadow-soft);
+  background: rgba(255, 251, 245, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: var(--learn-radius-card);
+}
+
+/* ── 点阵背景 ── */
+:global(.bg-pattern) {
+  background-color: #faf4ea;
+  background-image: url('/images/learn/bg/bg1.webp');
+  background-size: cover;
+  background-position: center top;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* ── 页面背景变体 ── */
+:global(.bg-journey) {
+  background-image:
+    linear-gradient(180deg, rgba(250, 244, 234, 0.6) 0%, rgba(238, 223, 203, 0.7) 100%),
+    url('/images/learn/bg/bg4.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+:global(.bg-master) {
+  background-image:
+    linear-gradient(180deg, rgba(250, 244, 234, 0.65) 0%, rgba(238, 223, 203, 0.75) 100%),
+    url('/images/learn/bg/bg2.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+:global(.bg-works) {
+  background-image:
+    linear-gradient(180deg, rgba(250, 244, 234, 0.55) 0%, rgba(238, 223, 203, 0.7) 100%),
+    url('/images/learn/bg/bg3.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+:global(.bg-publish) {
+  background-image:
+    linear-gradient(180deg, rgba(250, 244, 234, 0.5) 0%, rgba(227, 198, 172, 0.65) 50%, rgba(210, 170, 140, 0.6) 100%),
+    url('/images/learn/bg/bg1.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* ── 侧边栏活跃导航项 ── */
+:global(.active-nav) {
+  background: linear-gradient(135deg, rgba(163, 65, 53, 0.1), rgba(163, 65, 53, 0.04));
+  border-right: 3px solid var(--learn-primary);
+  border-radius: var(--learn-radius-sm);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* ── 丝绸边框 ── */
+:global(.silk-border) {
+  border: 1px solid rgba(217, 197, 178, 0.4);
+}
+
+/* ── 毛玻璃卡片 ── */
+:global(.learn-glass-card) {
+  background: rgba(255, 251, 244, 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 248, 235, 0.5);
+  box-shadow: var(--learn-shadow-soft);
+  border-radius: var(--learn-radius-card);
+}
+
+/* ── 段落标题 ── */
+:global(.learn-section-title) {
+  font-family: var(--learn-font-display);
+  color: var(--learn-ink-900);
+  font-size: clamp(20px, 2vw, 28px);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+:global(.learn-section-subtitle) {
+  color: var(--learn-ink-500);
+  font-size: clamp(13px, 1.3vw, 16px);
+}
+
+/* ── 操作按钮 ── */
+:global(.learn-action-btn) {
+  border: 1px solid var(--learn-border-soft);
+  border-radius: var(--learn-radius-sm);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--learn-ink-900);
+  font-family: var(--learn-font-body);
+  font-weight: 500;
+  padding: 10px 18px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+:global(.learn-action-btn:hover:not(:disabled)) {
+  transform: translateY(-1px);
+  box-shadow: var(--learn-shadow-hover);
+}
+
+:global(.learn-action-btn.primary) {
+  background: var(--learn-primary);
+  color: #fff;
+  border-color: var(--learn-primary-dark);
+  font-weight: 600;
+}
+
+/* ── 状态标签 ── */
+:global(.learn-status-chip) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--learn-border-soft);
+  border-radius: var(--learn-radius-sm);
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--learn-ink-700);
+  font-size: 12px;
+}
+
+/* ── 照片卡 ── */
+:global(.photo-pin) {
+  position: relative;
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s ease;
+  box-shadow: var(--learn-shadow-soft);
+  border-radius: var(--learn-radius-card);
+}
+
+:global(.photo-pin:hover) {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--learn-shadow-strong);
+  z-index: 10;
+}
+
+/* ── 滚动侧边栏 ── */
+:global(.scroll-sidebar) {
+  background-color: #FDFBF7;
+  box-shadow: inset -8px 0 16px -8px rgba(0, 0, 0, 0.04);
+  border-right: 1px solid rgba(217, 197, 178, 0.4);
+}
+
+/* ── 无滚动条 ── */
+:global(.no-scrollbar::-webkit-scrollbar) {
+  display: none;
+}
+:global(.no-scrollbar) {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── 统一卡片 ── */
+:global(.learn-card) {
+  border-radius: var(--learn-radius-card);
+  border: 1px solid rgba(255, 248, 235, 0.5);
+  background: rgba(255, 251, 244, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--learn-shadow-soft);
+}
+
+/* ── 眉标文字 ── */
+:global(.learn-eyebrow) {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--learn-primary);
+  opacity: 0.8;
+}
+
+/* ── 主按钮 ── */
+:global(.learn-btn-primary) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--learn-radius-sm);
+  padding: 0.7rem 1.2rem;
+  background: linear-gradient(135deg, var(--learn-primary) 0%, #b24d3f 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(163, 65, 53, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+:global(.learn-btn-primary:hover:not(:disabled)) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(163, 65, 53, 0.28);
+}
+
+/* ── 填充星 ── */
+:global(.fill-star) {
+  font-variation-settings: 'FILL' 1;
+}

@@ -1,6 +1,6 @@
 // src/services/matchService.js
 
-import { database } from '../config/firebase';
+import { databaseIn } from './firebaseIn';
 import { 
   ref, 
   push, 
@@ -24,7 +24,7 @@ class MatchService {
   }
   // 获取当前回合控制权
 async acquireTurn(matchId, userId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     const snapshot = await get(matchRef);
     const match = snapshot.val();
     
@@ -47,7 +47,7 @@ async acquireTurn(matchId, userId) {
   
   // 释放回合控制权
   async releaseTurn(matchId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     await update(matchRef, {
       'performance/currentTurn': null
     });
@@ -56,7 +56,7 @@ async acquireTurn(matchId, userId) {
   // 初始化用户
   async initUser(userId, userName) {
     this.currentUserId = userId;
-    const userRef = ref(database, `users/${userId}`);
+    const userRef = ref(databaseIn, `users/${userId}`);
     
     await set(userRef, {
       id: userId,
@@ -67,7 +67,7 @@ async acquireTurn(matchId, userId) {
     });
 
     // 设置离线状态
-    const onDisconnectRef = ref(database, `users/${userId}/online`);
+    const onDisconnectRef = ref(databaseIn, `users/${userId}/online`);
     // onDisconnect(onDisconnectRef).set(false);
 
     return userId;
@@ -79,7 +79,7 @@ async acquireTurn(matchId, userId) {
       throw new Error('用户未初始化');
     }
 
-    const poolRef = ref(database, `matchPool/${this.currentUserId}`);
+    const poolRef = ref(databaseIn, `matchPool/${this.currentUserId}`);
     
     await set(poolRef, {
       oderId: this.currentUserId,
@@ -94,7 +94,7 @@ async acquireTurn(matchId, userId) {
 
   // 查找匹配
   async findMatch() {
-    const poolRef = ref(database, 'matchPool');
+    const poolRef = ref(databaseIn, 'matchPool');
     const snapshot = await get(poolRef);
     
     if (!snapshot.exists()) {
@@ -121,13 +121,13 @@ async acquireTurn(matchId, userId) {
 
   // 创建匹配房间
   async createMatch(player1Id, player2Id) {
-    const matchRef = push(ref(database, 'matches'));
+    const matchRef = push(ref(databaseIn, 'matches'));
     const matchId = matchRef.key;
 
     // 获取玩家信息
     const [player1Snap, player2Snap] = await Promise.all([
-      get(ref(database, `users/${player1Id}`)),
-      get(ref(database, `users/${player2Id}`))
+      get(ref(databaseIn, `users/${player1Id}`)),
+      get(ref(databaseIn, `users/${player2Id}`))
     ]);
 
     const player1 = player1Snap.val();
@@ -173,10 +173,10 @@ async acquireTurn(matchId, userId) {
 
     // 更新玩家状态
     await Promise.all([
-      update(ref(database, `users/${player1Id}`), { currentMatch: matchId }),
-      update(ref(database, `users/${player2Id}`), { currentMatch: matchId }),
-      remove(ref(database, `matchPool/${player1Id}`)),
-      remove(ref(database, `matchPool/${player2Id}`))
+      update(ref(databaseIn, `users/${player1Id}`), { currentMatch: matchId }),
+      update(ref(databaseIn, `users/${player2Id}`), { currentMatch: matchId }),
+      remove(ref(databaseIn, `matchPool/${player1Id}`)),
+      remove(ref(databaseIn, `matchPool/${player2Id}`))
     ]);
 
     this.currentMatchId = matchId;
@@ -185,7 +185,7 @@ async acquireTurn(matchId, userId) {
 
   // 监听匹配池变化（用于自动匹配）
   listenToMatchPool(callback) {
-    const poolRef = ref(database, 'matchPool');
+    const poolRef = ref(databaseIn, 'matchPool');
     
     const unsubscribe = onValue(poolRef, async (snapshot) => {
       if (!snapshot.exists()) {
@@ -214,7 +214,7 @@ async acquireTurn(matchId, userId) {
 
   // 监听匹配房间
   listenToMatch(matchId, callback) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     const unsubscribe = onValue(matchRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -231,7 +231,7 @@ async acquireTurn(matchId, userId) {
 
   // 选择剧目
   async selectDrama(matchId, dramaId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       [`selections/${this.currentUserId}/drama`]: dramaId,
@@ -260,7 +260,7 @@ async acquireTurn(matchId, userId) {
 
   // 选择角色
   async selectCharacter(matchId, characterName) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       [`selections/${this.currentUserId}/character`]: characterName,
@@ -289,7 +289,7 @@ async acquireTurn(matchId, userId) {
 
   // 确认准备
   async confirmReady(matchId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       [`selections/${this.currentUserId}/ready`]: true,
@@ -318,7 +318,7 @@ async acquireTurn(matchId, userId) {
 
   // 同步剧情进度
   async syncProgress(matchId, nodeId, timeline) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       'performance/currentNodeId': nodeId,
@@ -331,7 +331,7 @@ async acquireTurn(matchId, userId) {
 
   // 提交选择
   async submitChoice(matchId, nodeId, choiceIndex) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       'performance/lastChoice': {
@@ -346,7 +346,7 @@ async acquireTurn(matchId, userId) {
 
   // 更新等待状态
   async updateWaitingFor(matchId, playerId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       'performance/waitingFor': playerId,
@@ -356,7 +356,7 @@ async acquireTurn(matchId, userId) {
 
   // 结束表演
   async endPerformance(matchId) {
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     
     await update(matchRef, {
       status: 'ended',
@@ -369,14 +369,14 @@ async acquireTurn(matchId, userId) {
   async leaveMatch(matchId) {
     if (!matchId) return;
 
-    const matchRef = ref(database, `matches/${matchId}`);
+    const matchRef = ref(databaseIn, `matches/${matchId}`);
     const snapshot = await get(matchRef);
     
     if (snapshot.exists()) {
       const match = snapshot.val();
       
       // 更新玩家状态
-      await update(ref(database, `users/${this.currentUserId}`), {
+      await update(ref(databaseIn, `users/${this.currentUserId}`), {
         currentMatch: null,
         online: false
       });
@@ -384,7 +384,7 @@ async acquireTurn(matchId, userId) {
       // 如果双方都离开，删除房间
       const otherPlayerId = match.players.find(p => p !== this.currentUserId);
       if (otherPlayerId) {
-        const otherPlayerSnap = await get(ref(database, `users/${otherPlayerId}`));
+        const otherPlayerSnap = await get(ref(databaseIn, `users/${otherPlayerId}`));
         const otherPlayer = otherPlayerSnap.val();
         
         if (!otherPlayer?.online || otherPlayer?.currentMatch !== matchId) {
@@ -399,7 +399,7 @@ async acquireTurn(matchId, userId) {
   // 离开匹配池
   async leaveMatchPool() {
     if (this.currentUserId) {
-      await remove(ref(database, `matchPool/${this.currentUserId}`));
+      await remove(ref(databaseIn, `matchPool/${this.currentUserId}`));
     }
   }
 

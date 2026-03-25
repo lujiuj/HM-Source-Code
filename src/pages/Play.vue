@@ -42,7 +42,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { database } from '../config/firebase';
+import { databaseIn } from '../config/firebaseIn';
 import { ref as dbRef, push, set, onValue, update, remove, get } from 'firebase/database';
 
 const router = useRouter();
@@ -76,7 +76,7 @@ let countdownTimer = null;
 onMounted(async () => {
   console.log(`当前用户ID: ${currentUser.value.id}, 昵称: ${currentUser.value.name}`);
   
-  const userRef = dbRef(database, `users/${currentUser.value.id}`);
+  const userRef = dbRef(databaseIn, `users/${currentUser.value.id}`);
   const userSnapshot = await get(userRef); 
   // 不存在当前用户，则创建
   if (!userSnapshot.exists()) {
@@ -100,7 +100,7 @@ onUnmounted(async () => {
   
   if (currentUser.value.id) {
     try {
-      await update(dbRef(database, `users/${currentUser.value.id}`), { 
+      await update(dbRef(databaseIn, `users/${currentUser.value.id}`), { 
         online: false,
         lastActivity: Date.now()
       });
@@ -127,7 +127,7 @@ const startAutoMatch = async () => {
   countdown.value = 0;
   isSoloPlay.value = false;
 
-  const poolRef = dbRef(database, `matchPool/${currentUser.value.id}`);
+  const poolRef = dbRef(databaseIn, `matchPool/${currentUser.value.id}`);
   await set(poolRef, {
     userId: currentUser.value.id,
     timestamp: Date.now(),
@@ -152,7 +152,7 @@ const matchTimeoutSolo = async () => {
   if (matchStatus.value !== 'waiting') return;
   
   console.log('执行超时匹配单人剧目逻辑');
-  await remove(dbRef(database, `matchPool/${currentUser.value.id}`));  // 删除匹配池中信息
+  await remove(dbRef(databaseIn, `matchPool/${currentUser.value.id}`));  // 删除匹配池中信息
   
   // 设置单人剧目状态
   matchStatus.value = 'matched';
@@ -164,7 +164,7 @@ const matchTimeoutSolo = async () => {
 
 // 监听匹配池
 const startListeningMatchPool = () => {
-  const poolRef = dbRef(database, 'matchPool');
+  const poolRef = dbRef(databaseIn, 'matchPool');
   poolListener = onValue(poolRef, async (snapshot) => {
     if (matchStatus.value !== 'waiting') return;
     
@@ -214,11 +214,11 @@ const cancelMatch = async () => {
   if (matchStatus.value === 'waiting') {
     clearCountdownTimer();
     try {
-      await remove(dbRef(database, `matchPool/${currentUser.value.id}`));
+      await remove(dbRef(databaseIn, `matchPool/${currentUser.value.id}`));
       
       // 如果已经有匹配ID，清理匹配记录
       if (currentUser.value.currentMatch) {
-        const matchRef = dbRef(database, `matches/${currentUser.value.currentMatch}`);
+        const matchRef = dbRef(databaseIn, `matches/${currentUser.value.currentMatch}`);
         const matchSnapshot = await get(matchRef);
         
         if (matchSnapshot.exists()) {
@@ -239,7 +239,7 @@ const cancelMatch = async () => {
       }
       
       // 清理用户currentMatch字段
-      await update(dbRef(database, `users/${currentUser.value.id}`), {
+      await update(dbRef(databaseIn, `users/${currentUser.value.id}`), {
         currentMatch: null
       });
       
@@ -268,7 +268,7 @@ const createMatch = async (userId1, userId2, type) => {
   
   try {
     // 检查匹配是否已存在
-    const existingMatchesSnapshot = await get(dbRef(database, 'matches'));
+    const existingMatchesSnapshot = await get(dbRef(databaseIn, 'matches'));
     const existingMatches = existingMatchesSnapshot.val();
     
     if (existingMatches) {
@@ -286,18 +286,18 @@ const createMatch = async (userId1, userId2, type) => {
 
     // 匹配成功后删除匹配池中两个用户
     try {
-      await remove(dbRef(database, `matchPool/${userId1}`));
-      await remove(dbRef(database, `matchPool/${userId2}`));
+      await remove(dbRef(databaseIn, `matchPool/${userId1}`));
+      await remove(dbRef(databaseIn, `matchPool/${userId2}`));
       console.log('已从匹配池移除用户');
     } catch (poolError) {
       console.warn('从匹配池移除用户时出错:', poolError);
     }
 
     // 获取用户信息
-    const user1Ref = dbRef(database, `users/${userId1}`);
+    const user1Ref = dbRef(databaseIn, `users/${userId1}`);
     const user1Snapshot = await get(user1Ref);
     let user1Data = user1Snapshot.val();
-    const user2Ref = dbRef(database, `users/${userId2}`);
+    const user2Ref = dbRef(databaseIn, `users/${userId2}`);
     const user2Snapshot = await get(user2Ref);
     let user2Data = user2Snapshot.val();
 
@@ -333,7 +333,7 @@ const createMatch = async (userId1, userId2, type) => {
     }
 
     // 创建匹配记录
-    const matchesRef = dbRef(database, 'matches');
+    const matchesRef = dbRef(databaseIn, 'matches');
     const newMatchRef = push(matchesRef);
     const matchId = newMatchRef.key;
     
@@ -400,7 +400,7 @@ const createMatch = async (userId1, userId2, type) => {
 };
 // 监听匹配结果
 // const startListeningMatches = () => {
-//   const matchesRef = dbRef(database, 'matches');
+//   const matchesRef = dbRef(databaseIn, 'matches');
 //   matchListener = onValue(matchesRef, async (snapshot) => {
 //     const matchesData = snapshot.val() || {};
 //     const allMatches = Object.values(matchesData);
@@ -426,7 +426,7 @@ const createMatch = async (userId1, userId2, type) => {
 // };
 // 监听匹配结果
 const startListeningMatches = () => {
-  const matchesRef = dbRef(database, 'matches');
+  const matchesRef = dbRef(databaseIn, 'matches');
   matchListener = onValue(matchesRef, async (snapshot) => {
     const matchesData = snapshot.val() || {};
     const allMatches = Object.values(matchesData);
@@ -461,7 +461,7 @@ const startListeningMatches = () => {
       console.log('匹配详情:', myActiveMatch);
       
       // 更新当前用户的匹配ID
-      await update(dbRef(database, `users/${currentUser.value.id}`), {
+      await update(dbRef(databaseIn, `users/${currentUser.value.id}`), {
         currentMatch: matchId
       });
     }
@@ -505,7 +505,7 @@ const proceedToGame = async () => {
     let matchId = null;
     if (!isSoloPlay.value && matchedUser.value) {
       // 查找匹配记录
-      const matchesRef = dbRef(database, 'matches');
+      const matchesRef = dbRef(databaseIn, 'matches');
       const snapshot = await get(matchesRef);
       const matches = snapshot.val() || {};
       
@@ -522,7 +522,7 @@ const proceedToGame = async () => {
       if (matchId) {
         console.log('找到匹配ID:', matchId);
         // 确保匹配状态为 selecting
-        await update(dbRef(database, `matches/${matchId}`), {
+        await update(dbRef(databaseIn, `matches/${matchId}`), {
           status: 'selecting',
           stage: 'drama',
           updatedAt: Date.now()
@@ -637,9 +637,9 @@ watch(matchStatus, (newStatus) => {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -647,39 +647,76 @@ watch(matchStatus, (newStatus) => {
 }
 
 .waiting-modal-content {
-  background: white;
-  padding: 30px 50px;
-  border-radius: 10px;
+  position: relative;
+  padding: 60px 80px;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  max-width: 400px;
+  width: 50%;
+  border: 10px solid #8b4513;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
 }
 
+.waiting-modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 1;
+}
+
+.waiting-modal-content > * {
+  position: relative;
+  z-index: 2;
+}
+
+
+
 .waiting-modal-content h2 {
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 36px;
+  color: #8b4513;
+  margin-bottom: 30px;
+  font-family: "STKaiti", "KaiTi", serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: 8px;
 }
 
 .waiting-modal-content p {
-  color: #666;
-  font-size: 1.1em;
-  margin-bottom: 20px;
+  color: #8b4513;
+  font-size: 18px;
+  margin-bottom: 30px;
+  font-family: "STSong", "SimSun", serif;
+  line-height: 1.6;
 }
 
 .waiting-modal-content button {
-  padding: 10px 20px;
-  background: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  padding: 16px 40px;
+  border: 3px solid #8b4513;
+  border-radius: 0;
+  font-size: 18px;
   cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-family: "STKaiti", "KaiTi", serif;
+  position: relative;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #825d00 0%, #e2712b 100%);
+  color: white;
+  border-color: #820f00;
 }
 
-.waiting-modal-content button:hover {
-  background: #c82333;
-}
 
 .waiting-modal-content button:disabled {
-  background: #e0e0e0;
+  background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+  color: #666;
+  border-color: #999;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 </style>

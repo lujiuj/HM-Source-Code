@@ -1,0 +1,189 @@
+{
+  "rules": {
+    "performances": {
+      "$performanceId": {
+        ".read": true,
+        ".write": true,
+        "messages": {
+          "$messageId": {
+            ".validate": "newData.hasChildren(['username', 'content', 'timestamp']) && newData.child('content').val().length <= 200 && newData.child('username').val().length <= 20"
+          }
+        },
+        "viewers": {
+          "$viewerId": {
+            ".validate": "newData.hasChildren(['isOnline', 'lastSeen'])"
+          }
+        },
+        "gifts": {
+          "$giftId": {
+            ".validate": "newData.hasChildren(['giftId', 'fromUser', 'timestamp']) && newData.child('giftId').val().length <= 50"
+          }
+        },
+        "likes": {
+          "$likeId": {
+            ".validate": "newData.hasChildren(['userId', 'timestamp'])"
+          }
+        },
+        "claps": {
+          "$clapId": {
+            ".validate": "newData.hasChildren(['userId', 'timestamp'])"
+          }
+        }
+      }
+    },
+    "arenaRooms": {
+      "$roomId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "arenaPresence": {
+      "$roomId": {
+        "$userId": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.hasChildren(['isOnline', 'lastSeen', 'username']) && newData.child('username').val().length <= 20"
+        }
+      }
+    },
+    "arenaDanmaku": {
+      "$roomId": {
+        "$messageId": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.hasChildren(['content', 'username', 'timestamp']) && newData.child('content').val().length <= 100"
+        }
+      }
+    },
+    "karaoke": {
+      ".read": true,
+      ".write": true
+    },
+    "learn": {
+      "profiles": {
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          "displayName": {
+            ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+          },
+          "updatedAt": {
+            ".validate": "newData.isNumber()"
+          }
+        }
+      },
+      "practice": {
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
+          ".indexOn": ["timestamp"]
+        }
+      },
+      "works": {
+        ".read": true,
+        "$songId": {
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid",
+            "id": {
+              ".validate": "newData.isString() && newData.val().length <= 120"
+            },
+            "userId": {
+              ".validate": "newData.isString() && newData.val() == $uid"
+            },
+            "username": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+            },
+            "songId": {
+              ".validate": "newData.isString() && newData.val() == $songId"
+            },
+            "songName": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 50"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "timestamp": {
+              ".validate": "newData.isNumber()"
+            },
+            "deletedAt": {
+              ".validate": "!newData.exists() || newData.isNumber()"
+            },
+            "mediaId": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)"
+            },
+            "grade": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 8)"
+            },
+            "stars": {
+              ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 5)"
+            }
+          }
+        }
+      },
+      "leaderboard": {
+        ".read": true,
+        "$songId": {
+          ".indexOn": ["score"],
+          "$uid": {
+            ".write": "auth != null && auth.uid == $uid",
+            "userId": {
+              ".validate": "newData.isString() && newData.val() == $uid"
+            },
+            "username": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 20"
+            },
+            "score": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
+            },
+            "stars": {
+              ".validate": "!newData.exists() || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 5)"
+            },
+            "grade": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 8)"
+            },
+            "timestamp": {
+              ".validate": "newData.isNumber()"
+            },
+            "workId": {
+              ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)"
+            }
+          }
+        }
+      },
+      "official": {
+        ".read": true,
+        ".write": false
+      },
+      "interactions": {
+        ".read": true,
+        "$songId": {
+          "$ownerUid": {
+            ".write": "auth != null && (newData.exists() || auth.uid == $ownerUid)",
+            "danmaku": {
+              "$msgId": {
+                ".write": "auth != null && !data.exists()",
+                ".validate": "!newData.exists() || (newData.hasChildren(['userId','username','text','timestamp','timeMs','workId']) && newData.child('userId').isString() && newData.child('userId').val() == auth.uid && newData.child('username').isString() && newData.child('username').val().length >= 1 && newData.child('username').val().length <= 20 && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 100 && newData.child('timestamp').isNumber() && newData.child('timeMs').isNumber() && newData.child('timeMs').val() >= 0 && newData.child('workId').isString() && newData.child('workId').val().length <= 120)"
+              }
+            },
+            "gifts": {
+              "$giftId": {
+                ".write": "auth != null && !data.exists()",
+                ".validate": "!newData.exists() || (newData.hasChildren(['userId','username','type','count','timestamp','workId']) && newData.child('userId').isString() && newData.child('userId').val() == auth.uid && newData.child('username').isString() && newData.child('username').val().length >= 1 && newData.child('username').val().length <= 20 && newData.child('type').isString() && newData.child('type').val().length >= 1 && newData.child('type').val().length <= 20 && newData.child('count').isNumber() && newData.child('count').val() >= 1 && newData.child('count').val() <= 99 && newData.child('timestamp').isNumber() && newData.child('workId').isString() && newData.child('workId').val().length <= 120)"
+              }
+            },
+            "comments": {
+              "$commentId": {
+                ".write": "auth != null && !data.exists() && newData.child('userId').val() == auth.uid",
+                ".validate": "!newData.exists() || (newData.hasChildren(['userId','username','text','likes','timestamp','workId']) && newData.child('userId').isString() && newData.child('userId').val() == auth.uid && newData.child('username').isString() && newData.child('username').val().length >= 1 && newData.child('username').val().length <= 20 && newData.child('text').isString() && newData.child('text').val().length >= 1 && newData.child('text').val().length <= 200 && (!newData.child('replyTo').exists() || (newData.child('replyTo').isString() && newData.child('replyTo').val().length <= 80)) && newData.child('likes').isNumber() && newData.child('likes').val() >= 0 && newData.child('timestamp').isNumber() && newData.child('workId').isString() && newData.child('workId').val().length <= 120)",
+                "likes": {
+                  ".write": "auth != null",
+                  ".validate": "!newData.exists() || (newData.isNumber() && ((!data.exists() && newData.val() == 0) || (data.exists() && newData.val() == data.val() + 1)))"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

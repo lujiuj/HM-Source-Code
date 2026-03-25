@@ -5,23 +5,46 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "node server/server.js",
+    "dev:learn": "node scripts/dev-learn.mjs",
+    "clean:learn:remote": "node scripts/reset-learn-remote.mjs",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e:learn": "node scripts/e2e-learn-regression.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "emulators": "node -e \"const fs=require('fs');const os=require('os');const path=require('path');const{spawnSync}=require('child_process');function run(cmd,args,opts){const r=spawnSync(cmd,args,{stdio:'inherit',...opts});if(r.error)throw r.error;if(r.status!==0)process.exit(r.status??1);}function ensureJava17(){const v=spawnSync('java',['-version'],{encoding:'utf8'});const txt=String(v.stderr||v.stdout||'');const m=txt.match(/version \\\"(\\d+)/);const major=m?Number(m[1]):NaN;if(Number.isFinite(major)&&major<=17)return null;const cache=path.join(os.homedir(),'.cache','firebase-java');const javaHome=path.join(cache,'jre17');const javaBin=path.join(javaHome,'bin','java');if(!fs.existsSync(javaBin)){fs.mkdirSync(cache,{recursive:true});fs.mkdirSync(javaHome,{recursive:true});const tgz=path.join(cache,'jre17.tgz');run('curl',['-fsSL','-o',tgz,'https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jre/hotspot/normal/adoptium']);run('tar',['-xzf',tgz,'-C',javaHome,'--strip-components=1']);}return javaHome;}const jh=ensureJava17();const env={...process.env};const extraNoProxy='127.0.0.1,localhost,::1';env.NO_PROXY=env.NO_PROXY?extraNoProxy+','+env.NO_PROXY:extraNoProxy;env.no_proxy=env.no_proxy?extraNoProxy+','+env.no_proxy:extraNoProxy;if(jh){env.JAVA_HOME=jh;env.PATH=path.join(jh,'bin')+':'+env.PATH;}const res=spawnSync('firebase',['emulators:start','--only','auth,database,storage'],{stdio:'inherit',env});process.exit(res.status??1);\"",
+    "test:emulators": "node -e \"const fs=require('fs');const os=require('os');const path=require('path');const{spawnSync}=require('child_process');function run(cmd,args,opts){const r=spawnSync(cmd,args,{stdio:'inherit',...opts});if(r.error)throw r.error;if(r.status!==0)process.exit(r.status??1);}function ensureJava17(){const v=spawnSync('java',['-version'],{encoding:'utf8'});const txt=String(v.stderr||v.stdout||'');const m=txt.match(/version \\\"(\\d+)/);const major=m?Number(m[1]):NaN;if(Number.isFinite(major)&&major<=17)return null;const cache=path.join(os.homedir(),'.cache','firebase-java');const javaHome=path.join(cache,'jre17');const javaBin=path.join(javaHome,'bin','java');if(!fs.existsSync(javaBin)){fs.mkdirSync(cache,{recursive:true});fs.mkdirSync(javaHome,{recursive:true});const tgz=path.join(cache,'jre17.tgz');run('curl',['-fsSL','-o',tgz,'https://api.adoptium.net/v3/binary/latest/17/ga/linux/x64/jre/hotspot/normal/adoptium']);run('tar',['-xzf',tgz,'-C',javaHome,'--strip-components=1']);}return javaHome;}const jh=ensureJava17();const env={...process.env};const extraNoProxy='127.0.0.1,localhost,::1';env.NO_PROXY=env.NO_PROXY?extraNoProxy+','+env.NO_PROXY:extraNoProxy;env.no_proxy=env.no_proxy?extraNoProxy+','+env.no_proxy:extraNoProxy;if(jh){env.JAVA_HOME=jh;env.PATH=path.join(jh,'bin')+':'+env.PATH;}const res=spawnSync('firebase',['emulators:exec','--only','auth,database,storage','npm test'],{stdio:'inherit',env});process.exit(res.status??1);\""
   },
   "dependencies": {
-    "@antv/g6": "^4.8.24",
+    "@antv/g6": "^4.8.25",
+    "@supabase/supabase-js": "^2.100.0",
+    "@tweenjs/tween.js": "^25.0.0",
+    "express": "^5.1.0",
     "firebase": "^12.5.0",
+    "gsap": "^3.14.2",
     "howler": "^2.2.4",
+    "lyric-parser": "^1.0.1",
+    "naive-ui": "^2.44.1",
+    "pitchfinder": "^2.3.4",
+    "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "three": "^0.180.0",
     "vue": "^3.5.22",
     "vue-router": "^4.6.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.1",
+    "@playwright/test": "^1.58.2",
+    "@tailwindcss/vite": "^4.2.1",
+    "@vitejs/plugin-vue": "^6.0.4",
+    "@vue/test-utils": "^2.4.6",
+    "fake-indexeddb": "^6.2.5",
+    "firebase-tools": "^13.0.0",
+    "happy-dom": "^20.3.9",
     "less": "^4.4.2",
-    "naive-ui": "^2.43.2",
-    "vfonts": "^0.0.3",
-    "vite": "^7.1.7"
+    "playwright": "^1.58.2",
+    "tailwindcss": "^4.2.1",
+    "vite": "^6.2.6",
+    "vitest": "^4.0.18"
   }
 }

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EBE2D5" />
+      <stop offset="100%" stop-color="#D4C4A9" />
+    </linearGradient>
+    <linearGradient id="silhouette" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8A2E2E" />
+      <stop offset="100%" stop-color="#5C1F1F" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="200" height="200" fill="url(#bg)" />
+  
+  <!-- Stylized hair / headdress base -->
+  <path d="M100 25 C140 25 160 55 155 90 C150 120 130 130 100 130 C70 130 50 120 45 90 C40 55 60 25 100 25 Z" fill="url(#silhouette)" opacity="0.8" />
+  
+  <!-- Face silhouette outline -->
+  <path d="M100 45 C120 45 135 65 135 95 C135 125 115 145 100 155 C85 145 65 125 65 95 C65 65 80 45 100 45 Z" fill="#F7F4EB" opacity="0.9" />
+  
+  <!-- Neck and shoulders -->
+  <path d="M75 140 C50 160 30 180 30 200 L170 200 C170 180 150 160 125 140 C115 150 105 155 100 155 C95 155 85 150 75 140 Z" fill="url(#silhouette)" opacity="0.8" />
+  
+  <!-- Minimalist features (abstract) -->
+  <!-- Eyebrows -->
+  <path d="M75 80 Q85 75 92 78 M125 80 Q115 75 108 78" stroke="#8A2E2E" stroke-width="2" fill="none" stroke-linecap="round" />
+  <!-- Eyes closed/downcast (opera style) -->
+  <path d="M72 90 Q82 93 90 88 M128 90 Q118 93 110 88" stroke="#8A2E2E" stroke-width="2" fill="none" stroke-linecap="round" />
+  <!-- Red lip accent -->
+  <path d="M90 120 Q100 125 110 120 Q100 128 90 120 Z" fill="#D32F2F" />
+  
+  <!-- Decorative opera hair elements -->
+  <circle cx="50" cy="85" r="10" fill="#D4AF37" opacity="0.7" />
+  <circle cx="150" cy="85" r="10" fill="#D4AF37" opacity="0.7" />
+  <path d="M100 20 L95 30 L105 30 Z" fill="#D4AF37" opacity="0.8" />
+</svg>

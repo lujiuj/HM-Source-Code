@@ -344,7 +344,7 @@ watch(conversation, scrollToBottom, { deep: true });
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: url('../assets/performers/actor2.png');
+  background: url('https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/assets/performers/actor2.png');
   background-size: cover;
   color: #fefefe;
   display: flex;

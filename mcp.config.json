@@ -1,0 +1,74 @@
+
+{
+  "servers": {
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem@latest",
+        "C:/Users/shixi/Desktop/HMX2"
+      ]
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory@latest"
+      ]
+    },
+    "git": {
+      "type": "stdio",
+      "command": "mcp-server-git",
+      "args": [
+        "--repository",
+        "C:/Users/shixi/Desktop/HMX2"
+      ]
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": "mcp-server-sqlite",
+      "args": [
+        "--db-path",
+        "C:/Users/shixi/Desktop/HMX2/.mcp/sqlite.db"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "stitch": {
+      "type": "http",
+      "url": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "${MCP_API_KEY}"
+      }
+    }
+  }
+}
+

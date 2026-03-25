@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "fetchedAt": 1772347352113,
+  "outputDir": "src/shared/assets/learn-external",
+  "assets": [
+    {
+      "key": "paper-fibers",
+      "outFile": "paper_fibers.png",
+      "url": "https://www.toptal.com/designers/subtlepatterns/uploads/paper_fibers.png",
+      "bytes": 73212,
+      "tags": [
+        "texture",
+        "paper"
+      ]
+    },
+    {
+      "key": "fabric-square",
+      "outFile": "fabric_squares_gray.png",
+      "url": "https://www.toptal.com/designers/subtlepatterns/uploads/fabric_of_squares_gray.png",
+      "bytes": 56471,
+      "tags": [
+        "texture",
+        "fabric"
+      ]
+    },
+    {
+      "key": "fabric-fine",
+      "outFile": "fabric_1.png",
+      "url": "https://www.toptal.com/designers/subtlepatterns/uploads/fabric_1.png",
+      "bytes": 101501,
+      "tags": [
+        "texture",
+        "fabric"
+      ]
+    },
+    {
+      "key": "stage-curtain",
+      "outFile": "curtain_939464.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Curtain-939464.jpg",
+      "bytes": 749816,
+      "tags": [
+        "hero",
+        "stage"
+      ]
+    },
+    {
+      "key": "dust-texture",
+      "outFile": "stardust.png",
+      "url": "https://www.toptal.com/designers/subtlepatterns/uploads/stardust.png",
+      "bytes": 9106,
+      "tags": [
+        "texture",
+        "night"
+      ]
+    },
+    {
+      "key": "gold-speckle",
+      "outFile": "diagmonds.png",
+      "url": "https://www.toptal.com/designers/subtlepatterns/uploads/diagmonds.png",
+      "bytes": 1706,
+      "tags": [
+        "texture",
+        "gold"
+      ]
+    }
+  ]
+}

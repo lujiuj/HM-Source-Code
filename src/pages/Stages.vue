@@ -143,7 +143,7 @@ import { ref, computed, onMounted,onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useBgm } from '../config/useBgmStore'  // 导入useBgm
 import StagesHuangmeiAI from "../components/Stages_HuangmeiAI.vue";
-import { database } from '../config/firebase';
+import { databaseIn } from '../config/firebaseIn';
 import { ref as dbRef, push, set, onValue, update, remove, get } from 'firebase/database';
 
 // 接收路由参数
@@ -260,7 +260,7 @@ const initMultiplayerSync = async () => {
     } else {
       // 从matches中查找匹配
       console.log('查找匹配记录...');
-      const matchesSnapshot = await get(dbRef(database, 'matches'));
+      const matchesSnapshot = await get(dbRef(databaseIn, 'matches'));
       const matches = matchesSnapshot.val() || {};
       
       for (const [id, match] of Object.entries(matches)) {
@@ -306,7 +306,7 @@ const startListeningMatch = () => {
   }
   
   console.log('开始监听匹配数据，ID:', matchId.value);
-  const matchRef = dbRef(database, `matches/${matchId.value}`);
+  const matchRef = dbRef(databaseIn, `matches/${matchId.value}`);
   
   matchListener = onValue(matchRef, (snapshot) => {
     const matchData = snapshot.val();
@@ -420,7 +420,7 @@ const selectDrama = async (drama) => {
   if (!isSoloPlay.value && matchedUser.value && matchId.value) {
     try {
       // 更新到数据库
-      await update(dbRef(database, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
+      await update(dbRef(databaseIn, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
         drama: drama.id,
         lastUpdate: Date.now()
       });
@@ -446,7 +446,7 @@ const confirmDramaSelection = async () => {
     // 双人模式：同步确认状态
     if (matchId.value) {
       try {
-        await update(dbRef(database, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
+        await update(dbRef(databaseIn, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
           drama: selectedDrama.value.id,
           ready: true,
           lastUpdate: Date.now()
@@ -486,7 +486,7 @@ const selectCharacter = async (character) => {
   if (!isSoloPlay.value && matchedUser.value && matchId.value) {
     try {
       // 更新到数据库
-      await update(dbRef(database, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
+      await update(dbRef(databaseIn, `matches/${matchId.value}/selections/${currentUser.value.id}`), {
         character: character.id,
         lastUpdate: Date.now()
       });
@@ -517,7 +517,7 @@ const startPerformance = async () => {
   if (!isSoloPlay.value && matchedUser.value && matchId.value) {
     try {
       // 更新匹配状态为演绎中
-      await update(dbRef(database, `matches/${matchId.value}`), {
+      await update(dbRef(databaseIn, `matches/${matchId.value}`), {
         status: 'performing',
         stage: 'performing',
         updatedAt: Date.now()
@@ -568,164 +568,172 @@ const playAnimation3 = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
-.modal-content {
-  background: url('../assets/backgrounds/background1.png'); 
-  background-size: cover;
-  background-repeat: no-repeat;
-  padding: 24px 32px;
-  border-radius: 12px;
-  max-width: 600px; 
-  max-height: 80vh;
-  width: 90%;
-  overflow-y: auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  position: relative; /* 为卡片角标定位 */
-}
 
-.modal-content h2 {
-  text-align: center;
-  margin-bottom: 24px;
-  color: #333;
-}
 
 .drama-grid,
 .character-grid {
   display: grid;
-  /* 响应式网格：自动填充，每列最小150px */
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 20px; 
+  gap: 20px;
   margin-top: 20px;
 }
 
 .drama-card,
 .character-card {
-  position: relative; /* 为伪元素定位 */
-  overflow: hidden; 
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #f1efe6;
+  position: relative;
+  overflow: hidden;
+  padding: 24px 20px;
+  border: 3px solid #8b4513;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   text-align: center;
-  transition: all 0.3s ease-out; 
-  z-index: 1; 
+  transition: all 0.3s ease;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* 卡片标题样式 */
+
+
 .drama-card h3,
 .character-card h4 {
   margin: 0;
   font-size: 18px;
-  color: #333;
-  transition: color 0.3s ease-out;
+  color: #8b4513;
+  transition: color 0.3s ease;
+  font-family: "STKaiti", "KaiTi", serif;
+  font-weight: bold;
 }
 
-.drama-card::before,
-.character-card::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 500px; /* 扩散圆的大小 */
-  height: 300px;
-  background: #5bc98e; 
-  border-radius: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.4s ease-out;
-  z-index: 0; 
-}
-
-/* 悬停时触发动画 */
-.drama-card:hover::before,
-.character-card:hover::before {
-  transform: translate(-3%, -3%) scale(1); /* 放大到覆盖整个卡片 */
+.drama-card:hover,
+.character-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(139, 69, 19, 0.4);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .drama-card.selected,
 .character-card.selected {
-  border-color: #d1e5e7;
-  box-shadow: 0 4px 12px rgba(195, 240, 244, 0.3);
-  transform: translateY(-4px); 
-  background-color: #e2f1c8; 
-  color: #676464; 
+  border-color: #f5880b;
+  box-shadow: 0 4px 12px rgba(130, 0, 0, 0.4);
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.95);
 }
 
-.drama-card.selected h3,
-.character-card.selected h4 {
-  color: #333;
-}
+
 
 .drama-card.opponent-selected,
 .character-card.opponent-selected {
-  border-color: #ff0000; 
-  background-color: #ffa99a;
+  border-color: #8b0000;
+  background: rgba(255, 200, 200, 0.9);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
 }
 
-.opponent-status,.selection-status{
-  color:rgb(122, 120, 126)
+.drama-card.opponent-selected h3,
+.character-card.opponent-selected h4 {
+  color: #8b0000;
 }
+
+.opponent-status,
+.selection-status {
+  text-align: center;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid #8b4513;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  position: relative;
+  color: #8b4513;
+  font-family: "STKaiti", "KaiTi", serif;
+}
+
+.opponent-status::before,
+.selection-status::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 16px;
+  background: #f0e6c5;
+  border: 2px solid #8b4513;
+  border-radius: 4px;
+}
+
+.status-indicator.ready {
+  color: #823600;
+  font-weight: bold;
+}
+
+.status-indicator.choosing {
+  color: #8b4513;
+  font-weight: bold;
+}
+
+.status-indicator.waiting {
+  color: #8b0000;
+  font-weight: bold;
+}
+
 .opponent-selection-mark {
   position: absolute;
   top: 5px;
   right: 5px;
-  background-color: #f0ad4e;
-  color: rgb(120, 30, 30);
-  padding: 2px 6px;
-  font-size: 10px;
+  background: linear-gradient(135deg, #8b0000 0%, #a0522d 100%);
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
   border-radius: 4px;
   font-weight: bold;
+  font-family: "STKaiti", "KaiTi", serif;
+  z-index: 3;
 }
 
 .selection-actions {
   text-align: center;
-  margin-top: 30px;
+  margin-top: 40px;
 }
 
 .selection-actions button {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  background-color: #454443;
-  border: none;
-  border-radius: 8px;
+  padding: 16px 40px;
+  border: 3px solid #8b4513;
+  border-radius: 0;
+  font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-family: "STKaiti", "KaiTi", serif;
+  position: relative;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #508200 0%, #e2712b 100%);
+  color: white;
+  border-color: #820000;
 }
 
-.selection-actions button:hover:not(:disabled) {
-  background-color: #e7742d;
-  transform: translateY(-2px);
-}
 
 .selection-actions button:disabled {
-  background-color: #ccc;
+  background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+  color: #666;
+  border-color: #999;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
-.selection-status, .opponent-status {
-  text-align: center;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border-radius: 6px;
-  margin-bottom: 20px;
-}
-
-.status-indicator.ready { color: #5cb85c; font-weight: bold; }
-.status-indicator.choosing { color: #f0ad4e; font-weight: bold; }
-.status-indicator.waiting { color: #d9534f; font-weight: bold; }
 
 .into-scene {
   width:100vw;
   height: 100vh;
-  background: url('../assets/backgrounds/scene2.png');
+  background: url('https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/assets/backgrounds/scene2.png');
   background-size: cover;
 }
 .ren {
