@@ -11,11 +11,8 @@ function isHttpUrl(value) {
 
 export function resolveLearnApiEndpoint(pathname) {
   const safePath = pathname.startsWith('/') ? pathname : `/${pathname}`
-  if (typeof window === 'undefined') return `http://localhost:3000${safePath}`
-  const host = window.location.hostname || 'localhost'
-  const isLocal = host === 'localhost' || host === '127.0.0.1'
-  if (isLocal) return `${window.location.protocol}//${host}:3000${safePath}`
-  return safePath
+  const baseUrl = 'https://hmx1-backend.onrender.com'
+  return `${baseUrl}${safePath}`
 }
 
 export function getAccessibleMediaUrl(work = {}, resolvedMediaUrl = '') {

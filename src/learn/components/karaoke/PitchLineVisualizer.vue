@@ -6,8 +6,8 @@
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { hzToMidiNumber } from '../../../../shared/domain/pitch/pitchMath.js'
-import { getExpectedPitchForLine } from '../../../../shared/utils/scoreRef.js'
+import { hzToMidiNumber } from '../../../shared/domain/pitch/pitchMath.js'
+import { getExpectedPitchForLine } from '../../../shared/utils/scoreRef.js'
 
 const props = defineProps({
   scoreRef: { type: Object, default: null },

@@ -342,11 +342,11 @@
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useHuangmeiScore } from '../../../../shared/composables/useHuangmeiScore.js'
-import { useLyricSync } from '../../../../shared/composables/useLyricSync.js'
-import { usePitchDetection } from '../../../../shared/composables/usePitchDetection.js'
-import { scorePreviousLineOnChange } from '../../../../shared/utils/karaokeLineScoring.js'
-import { getExpectedPitchForLine, loadScoreRef } from '../../../../shared/utils/scoreRef.js'
+import { useHuangmeiScore } from '../../../shared/composables/useHuangmeiScore.js'
+import { useLyricSync } from '../../../shared/composables/useLyricSync.js'
+import { usePitchDetection } from '../../../shared/composables/usePitchDetection.js'
+import { scorePreviousLineOnChange } from '../../../shared/utils/karaokeLineScoring.js'
+import { getExpectedPitchForLine, loadScoreRef } from '../../../shared/utils/scoreRef.js'
 import { buildSongGuideTimeline } from '../../utils/learnCatalog.js'
 import LyricsDisplay from './LyricsDisplay.vue'
 import PitchLineVisualizer from './PitchLineVisualizer.vue'

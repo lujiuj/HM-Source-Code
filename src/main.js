@@ -1,5 +1,7 @@
 import { createApp } from 'vue'
 import './style.css'
+import './learn/styles/learn-theme.less'
+import './learn/styles/learn-layout.less'
 import App from './App.vue'
 import router from './router'
 import {

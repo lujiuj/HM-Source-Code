@@ -178,9 +178,9 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getInfra } from '../../../../shared/infra/index.js'
-import { getGradeByScore } from '../../../../shared/utils/grades.js'
-import { buildWorksLeaderboard } from '../../../../shared/utils/worksLeaderboard.js'
+import { getInfra } from '../../../shared/infra/index.js'
+import { getGradeByScore } from '../../../shared/utils/grades.js'
+import { buildWorksLeaderboard } from '../../../shared/utils/worksLeaderboard.js'
 import { cloneDemo, demoCurrentUserId } from '../../utils/learnDemoFixtures.js'
 
 const props = defineProps({
