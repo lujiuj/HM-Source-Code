@@ -12,7 +12,7 @@ export class SupabaseInteractionStore {
         .from('interactions')
         .select('*')
         .eq('user_id', uid)
-        .order('timestamp', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(limit)
 
       if (error || !data) return []

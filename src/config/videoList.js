@@ -1,7 +1,9 @@
 // 黄梅戏视频库
 export default{
   '棒打薄情郎': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/棒打薄情郎.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/棒打薄情郎.mp4',
+    type: 'bilibili',
+    bvid:'BV1wb4y1r71T',
     title: '棒打薄情郎',
     description: '黄梅戏传统剧目，讲述女子怒打负心汉的故事，体现了古代女性对爱情的忠贞和对负心行为的抗争',
     tags: ['黄梅戏', '传统', '爱情', '道德', '惩戒'],
@@ -16,7 +18,9 @@ export default{
     culturalSignificance: '反映了传统社会对负心行为的道德批判，展现了女性的觉醒和抗争精神'
   },
   '秤妈': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/秤妈.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/秤妈.mp4',
+    type: 'bilibili',
+    bvid:'BV1gh4y1i7fV', //https://www.bilibili.com/video/BV1gh4y1i7fV?t=4.2
     title: '秤妈',
     description: '黄梅戏现代题材剧目，围绕家庭赡养与孝道展开，批判不孝行为，弘扬传统美德',
     tags: ['黄梅戏', '现代', '家庭', '孝道', '伦理'],
@@ -31,7 +35,9 @@ export default{
     culturalSignificance: '聚焦当代家庭赡养问题，呼吁传承孝道，弘扬尊老爱老的传统美德'
   },
   '错配姻缘': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/错配姻缘.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/错配姻缘.mp4',
+    type: 'bilibili',
+    bvid:'BV1sk4y1S7QM', //https://www.bilibili.com/video/BV1sk4y1S7QM?t=1.5
     title: '错配姻缘',
     description: '黄梅戏传统喜剧，讲述因阴差阳错导致的姻缘错位，最终在波折中成就美满姻缘的故事',
     tags: ['黄梅戏', '传统', '喜剧', '爱情', '姻缘'],
@@ -46,7 +52,9 @@ export default{
     culturalSignificance: '体现了传统社会对自由爱情的向往，展现了“有情人终成眷属”的美好愿景'
   },
   '窦娥冤': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/窦娥冤.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/窦娥冤.mp4',
+    type: 'bilibili',
+    bvid:'BV1KE411v7Q4', //https://www.bilibili.com/video/BV1KE411v7Q4?t=5.6
     title: '窦娥冤',
     description: '改编自关汉卿同名杂剧的黄梅戏经典悲剧，讲述窦娥蒙冤受屈、感天动地的悲壮故事',
     tags: ['黄梅戏', '经典', '悲剧', '冤案', '正义'],
@@ -61,7 +69,9 @@ export default{
     culturalSignificance: '中国古典悲剧代表作，揭露了封建司法的黑暗，歌颂了底层人民的反抗精神'
   },
   '赌妻还妻': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/赌妻还妻.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/赌妻还妻.mp4',
+    type: 'bilibili',
+    bvid:'BV1pE411y7i2',//https://www.bilibili.com/video/BV1pE411y7i2?t=3.9
     title: '赌妻还妻',
     description: '黄梅戏警示剧目，讲述嗜赌丈夫输掉妻子后幡然醒悟，最终赢回妻子、浪子回头的故事',
     tags: ['黄梅戏', '传统', '警示', '家庭', '戒赌'],
@@ -76,7 +86,9 @@ export default{
     culturalSignificance: '批判赌博恶习，警示世人珍惜家庭，弘扬勤劳向善的价值观'
   },
   '九斤姑娘': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/九斤姑娘.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/九斤姑娘.mp4',
+    type: 'bilibili',
+    bvid:'BV1vD421L7sT',//https://www.bilibili.com/video/BV1vD421L7sT?t=3.2
     title: '九斤姑娘',
     description: '黄梅戏经典生活小戏，塑造了聪明伶俐、机智过人的农家少女九斤姑娘形象',
     tags: ['黄梅戏', '小戏', '生活', '智慧', '喜剧'],
@@ -91,7 +103,9 @@ export default{
     culturalSignificance: '展现了江南农家生活风貌，歌颂了劳动人民的智慧与乐观精神'
   },
   '苦女冤': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/苦女冤.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/苦女冤.mp4',
+    type: 'bilibili',
+    bvid:'BV15t411v7T6',//https://www.bilibili.com/video/BV15t411v7T6?t=2.1
     title: '苦女冤',
     description: '黄梅戏悲情剧目，讲述底层女子遭受欺凌与冤屈，最终在正义帮助下得以昭雪的故事',
     tags: ['黄梅戏', '传统', '悲剧', '冤案', '底层'],
@@ -106,7 +120,9 @@ export default{
     culturalSignificance: '反映了封建社会底层人民的苦难，歌颂了正义与善良，批判了豪强恶霸的恶行'
   },
   '梁祝·楼台会': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/梁祝·楼台会.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/梁祝·楼台会.mp4',
+    type: 'bilibili',
+    bvid:'BV1ST4y1M7c2',// https://www.bilibili.com/video/BV1ST4y1M7c2?t=3.0
     title: '梁祝·楼台会',
     description: '黄梅戏经典剧目《梁山伯与祝英台》中的楼台相会选段，展现梁山伯与祝英台在楼台相会时的深情对唱',
     tags: ['黄梅戏', '经典', '爱情', '悲剧', '楼台会'],
@@ -121,7 +137,9 @@ export default{
     culturalSignificance: '中国四大爱情故事之一，展现了传统社会对自由爱情的压抑与抗争'
   },
   '孟姜女': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/孟姜女.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/孟姜女.mp4',
+    type: 'bilibili',
+    bvid:'BV1Zs41137q6',//https://www.bilibili.com/video/BV1Zs41137q6?t=2.4
     title: '孟姜女',
     description: '黄梅戏经典剧目《孟姜女》，讲述孟姜女为寻夫哭倒长城的神话爱情故事',
     tags: ['黄梅戏', '经典', '爱情', '悲剧', '神话'],
@@ -136,7 +154,9 @@ export default{
     culturalSignificance: '中国四大民间传说之一，展现了劳动人民对暴政的反抗和对忠贞爱情的赞颂'
   },
   '踏青': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/踏青.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/踏青.mp4',
+    type: 'bilibili',
+    bvid:'BV17t411Y7R7',//https://www.bilibili.com/video/BV17t411Y7R7?t=14.2
     title: '踏青',
     description: '黄梅戏生活小戏，描绘春日踏青时青年男女相遇相知的纯真故事，充满生活情趣和青春气息',
     tags: ['黄梅戏', '小戏', '生活', '青春', '爱情'],
@@ -151,7 +171,9 @@ export default{
     culturalSignificance: '展现了传统民间生活的美好画面，体现了青年男女纯真爱情和生活的诗意'
   },
   '天女散花': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/天女散花.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/天女散花.mp4',
+    type: 'bilibili',
+    bvid:'BV18g4y1t7dV',//https://www.bilibili.com/video/BV18g4y1t7dV?t=2.4
     title: '天女散花',
     description: '改编自佛教故事的黄梅戏神话剧目，展现天女散花、普度众生的唯美场景',
     tags: ['黄梅戏', '神话', '唯美', '宗教', '舞蹈'],
@@ -166,7 +188,9 @@ export default{
     culturalSignificance: '将佛教故事与黄梅戏艺术结合，展现了传统戏曲的唯美表现力与文化包容性'
   },
   '天仙配-鹊桥': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/天仙配-鹊桥.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/天仙配-鹊桥.mp4',
+    type: 'bilibili',
+    bvid:'BV1NT57zkErC',// https://www.bilibili.com/video/BV1NT57zkErC?t=3.2
     title: '天仙配-鹊桥',
     description: '黄梅戏经典剧目《天仙配》的鹊桥相会选段，讲述七仙女与董永在七夕鹊桥重逢的感人场景',
     tags: ['黄梅戏', '经典', '爱情', '神话', '鹊桥'],
@@ -181,7 +205,9 @@ export default{
     culturalSignificance: '中国四大民间传说之一，《天仙配》是黄梅戏代表作，歌颂了劳动人民的纯真爱情与反抗精神'
   },
   '神算记': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/神算记.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/神算记.mp4',
+    type: 'bilibili',
+    bvid:'BV1iv411g7Fi',//https://www.bilibili.com/video/BV1iv411g7Fi?t=2.3
     title: '神算记',
     description: '黄梅戏喜剧剧目，讲述“神算”先生误打误撞解决民间难题，最终揭露骗局的故事',
     tags: ['黄梅戏', '喜剧', '智慧', '讽刺', '民间'],
@@ -196,7 +222,9 @@ export default{
     culturalSignificance: '批判封建迷信与江湖骗术，歌颂了劳动人民的智慧与求真精神'
   },
   '柳玉娘': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/柳玉娘.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/柳玉娘.mp4',
+    type: 'bilibili',
+    bvid:'BV1Mt411v7X7',//https://www.bilibili.com/video/BV1Mt411v7X7?t=3.2
     title: '柳玉娘',
     description: '黄梅戏经典剧目，塑造了聪慧勇敢、重情重义的女子柳玉娘形象，展现了她的人生波折与情感抉择',
     tags: ['黄梅戏', '经典', '女性', '爱情', '侠义'],
@@ -211,7 +239,9 @@ export default{
     culturalSignificance: '塑造了传统戏曲中少见的“侠女”形象，歌颂了女性的智慧、勇气与情义'
   },
   '寿堂风波': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/寿堂风波.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/寿堂风波.mp4',
+    type: 'bilibili',
+    bvid:'BV1Su4y1j7En',//https://www.bilibili.com/video/BV1Su4y1j7En?t=2.6
     title: '寿堂风波',
     description: '黄梅戏家庭伦理剧，围绕老人寿宴展开，揭露家庭内部矛盾，最终化解误会、重归于好',
     tags: ['黄梅戏', '现代', '家庭', '伦理', '和解'],
@@ -226,7 +256,9 @@ export default{
     culturalSignificance: '聚焦当代家庭矛盾，呼吁亲情回归，弘扬尊老爱幼、家庭和睦的传统美德'
   },
   '七世夫妻': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/七世夫妻.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/七世夫妻.mp4',
+    type: 'bilibili',
+    bvid:'BV1pzAEzJE9V',//https://www.bilibili.com/video/BV1pzAEzJE9V?t=2.8
     title: '七世夫妻',
     description: '黄梅戏神话爱情剧，讲述一对恋人历经七世轮回、始终不离不弃的爱情传奇',
     tags: ['黄梅戏', '神话', '爱情', '轮回', '忠贞'],
@@ -241,7 +273,9 @@ export default{
     culturalSignificance: '以神话形式表达了对永恒爱情的向往，体现了传统爱情观中“生死相随”的极致浪漫'
   },
   '三请樊梨花': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/三请樊梨花.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/三请樊梨花.mp4',
+    type: 'bilibili',
+    bvid:'BV1KU4y1475q',//https://www.bilibili.com/video/BV1KU4y1475q?t=5.7
     title: '三请樊梨花',
     description: '黄梅戏历史战争剧，讲述薛丁山三请樊梨花出山，共同平定战乱的故事，塑造了巾帼英雄樊梨花形象',
     tags: ['黄梅戏', '历史', '战争', '巾帼英雄', '忠义'],
@@ -256,7 +290,9 @@ export default{
     culturalSignificance: '塑造了经典巾帼英雄形象，歌颂了女性的军事才能与家国大义，体现了传统忠义观'
   },
   '双龙配双凤': {
-    src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/双龙配双凤.mp4',
+    // src: 'https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/video/双龙配双凤.mp4',
+    type: 'bilibili',
+    bvid:'BV15m411Q7Yn',//https://www.bilibili.com/video/BV15m411Q7Yn?t=8.2
     title: '双龙配双凤',
     description: '黄梅戏传统爱情喜剧，讲述两对青年男女因机缘巧合相识相知，最终成就两段美好姻缘的故事',
     tags: ['黄梅戏', '传统', '喜剧', '爱情', '姻缘'],

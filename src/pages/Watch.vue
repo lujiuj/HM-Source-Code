@@ -8,7 +8,7 @@
         <canvas id="three"></canvas>
         <div class="video-show">
           <h2 class="mt30 mb10"></h2>
-          <Video 
+          <!-- <Video 
             :src="currentVideo.src" 
             :second="3" 
             :width="420" 
@@ -17,7 +17,8 @@
             @video-ended="onVideoEnded"
             @video-paused="onVideoPaused"
             @video-playing="onVideoPlaying"
-          />
+          /> -->
+          <Video :video="currentVideo"/>  
         </div>
       </div>
 
@@ -378,7 +379,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   height: 60px;
-  background: url('https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/assets/backgrounds/background1.png');
+  /* background: url('https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/assets/backgrounds/background1.png'); */
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 215, 0, 0.3);
   z-index: 50;
@@ -414,7 +415,7 @@ onUnmounted(() => {
 }
 
 .arrow-icon {
-  color: #ffd700;
+  color: #a0560b;
   font-size: 16px;
   transition: transform 0.3s ease;
 }
@@ -424,7 +425,7 @@ onUnmounted(() => {
 }
 
 .handle-text {
-  color: #f7a41e;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 500;
 }
@@ -747,22 +748,23 @@ onUnmounted(() => {
 }
 
 #button {
-  background: #4a90e2;
+  background: #787b80;
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  /* border-radius: 50%; */
+  /* width: 68px; */
+  height: 58px;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /* margin-left: 20px; */
+  padding-right: 40px;
+  /* align-items: center;
+  justify-content: center; */
   transition: all 0.3s ease;
   outline: none;
 }
 
 #button:hover {
-  background: #357abd;
   transform: scale(1.05);
 }
 

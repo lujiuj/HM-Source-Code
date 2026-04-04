@@ -7,6 +7,46 @@ const firebaseConfigMocks = vi.hoisted(() => {
   }
 })
 
+const supabaseProfileRecord = {
+  user_id: 'anon_boot',
+  display_name: '戏友',
+  avatar: null,
+  level: 1,
+  total_exp: 0,
+  gift_balance: 0,
+  unread_interaction_count: 0,
+  notifications: {},
+  journey: {},
+  created_at: '2026-01-01T00:00:00.000Z',
+  updated_at: '2026-01-01T00:00:00.000Z'
+}
+
+function createSupabaseQuery() {
+  const query = {
+    select: vi.fn(() => query),
+    eq: vi.fn(() => query),
+    single: vi.fn(async () => ({ data: null, error: { message: 'Not found' } })),
+    upsert: vi.fn(() => query),
+    maybeSingle: vi.fn(async () => ({ data: supabaseProfileRecord, error: null })),
+    then(onFulfilled, onRejected) {
+      return Promise.resolve({ data: supabaseProfileRecord, error: null }).then(onFulfilled, onRejected)
+    },
+    catch(onRejected) {
+      return Promise.resolve({ data: supabaseProfileRecord, error: null }).catch(onRejected)
+    }
+  }
+  return query
+}
+
+const supabaseConfigMocks = vi.hoisted(() => {
+  return {
+    ensureAnonymousAuth: vi.fn(async () => ({ id: 'anon_boot' })),
+    supabase: {
+      from: vi.fn(() => createSupabaseQuery())
+    }
+  }
+})
+
 vi.mock('../config/firebase.js', () => ({
   connectToEmulatorsIfEnabled: firebaseConfigMocks.connectToEmulatorsIfEnabled,
   ensureAnonymousAuth: firebaseConfigMocks.ensureAnonymousAuth,
@@ -15,10 +55,17 @@ vi.mock('../config/firebase.js', () => ({
   storage: {}
 }))
 
+vi.mock('../config/supabase.js', () => ({
+  ensureAnonymousAuth: supabaseConfigMocks.ensureAnonymousAuth,
+  supabase: supabaseConfigMocks.supabase
+}))
+
 beforeEach(() => {
   vi.resetModules()
   firebaseConfigMocks.connectToEmulatorsIfEnabled.mockClear()
   firebaseConfigMocks.ensureAnonymousAuth.mockClear()
+  supabaseConfigMocks.ensureAnonymousAuth.mockClear()
+  supabaseConfigMocks.supabase.from.mockClear()
 })
 
 describe('infra bootstrap', () => {
@@ -46,11 +93,21 @@ describe('infra bootstrap', () => {
     expect(mod.getInfra()).toBe(infra1)
   })
 
-  it('initInfra(firebase) performs firebase bootstrap without throwing (mocked)', async () => {
+  it('initInfra(firebase) rejects when firebase support is not configured', async () => {
     const mod = await import('../infra/index.js')
 
-    await expect(mod.initInfra('firebase')).resolves.toBeTruthy()
-    expect(firebaseConfigMocks.connectToEmulatorsIfEnabled).toHaveBeenCalledTimes(1)
-    expect(firebaseConfigMocks.ensureAnonymousAuth).toHaveBeenCalledTimes(1)
+    await expect(mod.initInfra('firebase')).rejects.toThrow('createInfra(firebase) is not supported')
+  })
+
+  it('initInfra(supabase) performs supabase bootstrap without throwing (mocked)', async () => {
+    const mod = await import('../infra/index.js')
+
+    await expect(mod.initInfra('supabase')).resolves.toBeTruthy()
+    expect(supabaseConfigMocks.ensureAnonymousAuth).toHaveBeenCalledTimes(3)
+    const infra = mod.getInfra()
+    expect(infra).toBeTruthy()
+    expect(infra.identity).toBeTruthy()
+    expect(infra.identity.getUid()).toBe('anon_boot')
+    expect(infra.identity.getProfile().displayName).toBe('戏友')
   })
 })

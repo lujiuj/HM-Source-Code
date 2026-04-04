@@ -143,15 +143,16 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
 // three.js 初始化代码
+let threeResizeHandler = null;
 function initThree() {
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#eee')
   const canvas = document.querySelector('#three')
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
-  // 提高模型清晰度
-  const stageContainer = canvas.parentElement;
-  renderer.setSize(stageContainer.offsetWidth, stageContainer.offsetHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
+
+  // 确保渲染 canvas 使用整个视口尺寸
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setSize(window.innerWidth, window.innerHeight)
 
   const camera = new THREE.PerspectiveCamera(
     60,
@@ -159,10 +160,10 @@ function initThree() {
     0.1,
     1000
   )
-  camera.position.set(0, 5, 15);
+  camera.position.set(0, 5, 40)
 
   const dracoLoader = new DRACOLoader()
-  dracoLoader.setDecoderPath('/draco/') 
+  dracoLoader.setDecoderPath('/draco/')
   const gltfLoader = new GLTFLoader()
   gltfLoader.setDRACOLoader(dracoLoader)
   gltfLoader.load(
@@ -180,19 +181,62 @@ function initThree() {
     }
   );
 
+  const controls = new OrbitControls(camera, renderer.domElement)
+  controls.zoomSpeed = 0.5;
+  controls.minDistance = 10;
+  controls.maxDistance = 100;
+  controls.enableRotate = true;
+  controls.enableDamping = true
+
   function animate() {
-    const controls = new OrbitControls(camera, renderer.domElement)
-    controls.zoomSpeed = 0.005;
-    controls.minDistance = 90;
-    controls.maxDistance = 90;
-    controls.enableRotate = false;
-    controls.enableDamping = true
     controls.update()
     renderer.render(scene, camera)
     requestAnimationFrame(animate)
   }
   animate()
+
+  threeResizeHandler = () => {
+    const width = window.innerWidth
+    const height = window.innerHeight
+    renderer.setSize(width, height)
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
+  }
+  window.addEventListener('resize', threeResizeHandler)
 }
+
+// =============================
+// CosyVoice 本地接口
+// =============================
+const COSYVOICE_ZERO_SHOT_API = 'http://127.0.0.1:9888//inference_zero_shot';
+
+// 角色音色参考配置
+// promptWav: 放在 public/voice-clone/
+// promptText: 必须和参考音频内容尽量一致
+const speakerCloneMap = {
+  '旁白': {
+    promptWav: '/voice-clone/narration_1.wav',
+    promptText: '楼台之上，月光如水。梁山伯闻得祝英台已许配马家，特来相见。二人相对而坐，往事如烟。'
+  },
+  '梁山伯': {
+    promptWav: '/voice-clone/liang_1.wav',
+    promptText: '英台，三年同窗，我竟不知你是女儿身。如今你已许配马家，我...我该如何是好？'
+  },
+  '祝英台': {
+    promptWav: '/voice-clone/zhu_1.wav',
+    promptText: '山伯哥哥，这门亲事是父母之命，非我本愿啊...'
+  },
+  '董永': {
+    promptWav: '/voice-clone/dongyong.wav',
+    promptText: '小生董永，今日得见仙颜，实乃三生有幸。'
+  },
+  '七仙女': {
+    promptWav: '/voice-clone/qixiannv.wav',
+    promptText: '董郎情深义重，叫我怎能不动心。'
+  }
+};
+
+
 // -----------------------------
 // Props & Emits
 // -----------------------------
@@ -247,6 +291,15 @@ const opponentRole = ref('');
 
 // Firebase 监听取消函数
 const unsubscribeMatch = ref(null);
+
+// -----------------------------
+// 音频变量
+// -----------------------------
+let currentAudio = null;
+let currentAudioObjectUrl = null;
+let activeSpeakToken = 0;
+// 定时器引用，避免多个 setTimeout 重叠推进
+let nextAdvanceTimer = null;
 
 // -----------------------------
 // 计算属性
@@ -346,12 +399,199 @@ onUnmounted(() => {
   if (unsubscribeMatch.value) {
     unsubscribeMatch.value();
   }
-  
+
   // 取消 TTS
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
+
+  // 取消 three.js resize 监听
+  if (threeResizeHandler) {
+    window.removeEventListener('resize', threeResizeHandler)
+    threeResizeHandler = null
+  }
 });
+// -----------------------------
+// CosyVoice 语音相关
+// -----------------------------
+function stopAllSpeech() {
+  activeSpeakToken += 1;
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio = null;
+  }
+
+  if (currentAudioObjectUrl) {
+    URL.revokeObjectURL(currentAudioObjectUrl);
+    currentAudioObjectUrl = null;
+  }
+}
+
+async function synthesizeByCosyVoice(text, speaker) {
+  const cloneConfig = speakerCloneMap[speaker] || speakerCloneMap['旁白'];
+  if (!cloneConfig) {
+    throw new Error(`未配置角色音色: ${speaker}`);
+  }
+
+  const wavRes = await fetch(cloneConfig.promptWav);
+  if (!wavRes.ok) {
+    throw new Error(`参考音频读取失败: ${cloneConfig.promptWav}`);
+  }
+
+  const wavBlob = await wavRes.blob();
+
+  const formData = new FormData();
+  formData.append('tts_text', text);
+  formData.append('prompt_text', cloneConfig.promptText);
+  formData.append('mode', 'zero_shot');
+  formData.append('stream', 'false');
+  formData.append('speed', '1.0');
+  formData.append('prompt_wav', wavBlob, 'prompt.wav');
+
+  const res = await fetch(COSYVOICE_ZERO_SHOT_API, {
+    method: 'POST',
+    body: formData
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`CosyVoice 请求失败: ${res.status} ${errText}`);
+  }
+
+  const audioBlob = await res.blob();
+  return URL.createObjectURL(audioBlob);
+}
+
+function speakByBrowserTTS(text, speaker) {
+  return new Promise((resolve) => {
+    if (!('speechSynthesis' in window)) return resolve();
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.9;
+    utterance.pitch = speaker === '旁白' ? 0.9 : 1.0;
+
+    const voices = window.speechSynthesis.getVoices();
+    const chineseVoices = voices.filter((v) => v.lang.includes('zh'));
+    if (chineseVoices.length > 0) {
+      utterance.voice = chineseVoices[0];
+    }
+
+    utterance.onend = () => resolve();
+    utterance.onerror = () => resolve();
+
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+async function speakText(text, speaker) {
+  if (!ttsEnabled.value || !text) return;
+
+  const token = ++activeSpeakToken;
+  stopAllSpeech();
+
+  // If there's no local prompt WAV for this speaker, use browser TTS directly.
+  const hasLocalPrompt = await localPromptExists(speaker);
+  if (!hasLocalPrompt) {
+    await speakByBrowserTTS(text, speaker);
+    return;
+  }
+  // If CosyVoice server is not reachable, fallback to browser TTS.
+  const cosyAvailable = await cosyVoiceAvailable();
+  if (!cosyAvailable) {
+    await speakByBrowserTTS(text, speaker);
+    return;
+  }
+  try {
+    const audioUrl = await synthesizeByCosyVoice(text, speaker);
+
+    if (token !== activeSpeakToken) {
+      URL.revokeObjectURL(audioUrl);
+      return;
+    }
+
+    currentAudioObjectUrl = audioUrl;
+    currentAudio = new Audio(audioUrl);
+    currentAudio.preload = 'auto';
+
+    const playPromise = currentAudio.play();
+    if (playPromise && playPromise.then) {
+      await playPromise.catch(() => {});
+    }
+
+    // 等待播放结束或被中断
+    await new Promise((resolve) => {
+      if (!currentAudio) return resolve();
+      const onEnded = () => {
+        currentAudio.removeEventListener('ended', onEnded);
+        resolve();
+      };
+      currentAudio.addEventListener('ended', onEnded);
+
+      // safety: if token changed, resolve
+      const checkToken = () => {
+        if (token !== activeSpeakToken) {
+          currentAudio.removeEventListener('ended', onEnded);
+          resolve();
+        } else {
+          setTimeout(checkToken, 50);
+        }
+      };
+      checkToken();
+    });
+  } catch (error) {
+    console.error('CosyVoice 合成失败，回退到浏览器 TTS:', error);
+
+    if (token !== activeSpeakToken) return;
+    await speakByBrowserTTS(text, speaker);
+  }
+}
+
+// 检查 public 下是否存在对应的 prompt WAV 文件（尝试 HEAD 请求）
+async function localPromptExists(speaker) {
+  const cloneConfig = speakerCloneMap[speaker];
+  if (!cloneConfig || !cloneConfig.promptWav) return false;
+  try {
+    const res = await fetch(cloneConfig.promptWav, { method: 'HEAD' });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+// 检查 CosyVoice 服务是否可用（短超时）
+async function cosyVoiceAvailable() {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2000);
+    const res = await fetch(COSYVOICE_ZERO_SHOT_API, { method: 'HEAD', signal: controller.signal });
+    clearTimeout(timeout);
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+function loadVoices() {
+  if ('speechSynthesis' in window) {
+    const loadVoicesHandler = () => {
+      const voices = window.speechSynthesis.getVoices();
+      voicesLoaded.value = voices.length > 0;
+    };
+
+    loadVoicesHandler();
+    window.speechSynthesis.onvoiceschanged = loadVoicesHandler;
+  }
+}
+
 
 // -----------------------------
 // 初始化对手信息
@@ -529,7 +769,12 @@ function initScene(sceneId) {
 // -----------------------------
 // 推进到指定节点
 // -----------------------------
-function advanceToNode(nodeId,isFromOpponentSync = false) {
+async function advanceToNode(nodeId,isFromOpponentSync = false) {
+  // 如果有未执行的定时推进，先清除，避免重复推进
+  if (nextAdvanceTimer) {
+    clearTimeout(nextAdvanceTimer);
+    nextAdvanceTimer = null;
+  }
   const node = nodeMap[nodeId];
   if (!node) {
     console.error(`节点不存在: ${nodeId}`);
@@ -563,11 +808,8 @@ function advanceToNode(nodeId,isFromOpponentSync = false) {
   }
 
   // 播放 TTS
-  if (ttsEnabled.value && node.text && node.speaker !== '系统' && !isFromOpponentSync) {
-    speakText(node.text, node.speaker);
-  }
-  // 处理不同类型的节点
-  handleNode(node,isFromOpponentSync);
+  // 处理不同类型的节点（handleNode 会在需要时播放并等待 TTS 完成）
+  await handleNode(node,isFromOpponentSync);
 
   // 滚动到底部
   scrollToBottom();
@@ -576,14 +818,14 @@ function advanceToNode(nodeId,isFromOpponentSync = false) {
 // -----------------------------
 // 处理节点逻辑
 // -----------------------------
-function handleNode(node,isFromOpponentSync = false) {
+async function handleNode(node,isFromOpponentSync = false) {
   switch (node.type) {
     case 'start':
       currentNode.value = null;
       isProcessing.value = false;
-      if (node.next) {
-        setTimeout(() => advanceToNode(node.next,isFromOpponentSync), 500);
-      }
+        if (node.next) {
+          scheduleAdvance(node.next, 500, isFromOpponentSync);
+        }
       break;
 
     case 'end':
@@ -601,8 +843,20 @@ function handleNode(node,isFromOpponentSync = false) {
     case 'aside':
       currentNode.value = node;
       isProcessing.value = false;
-      if (node.next) {
-        setTimeout(() => advanceToNode(node.next), getReadingDelay(node.text));
+      {
+        let playedSpeech = false;
+        if (ttsEnabled.value && node.text && node.speaker !== '系统' && !isFromOpponentSync) {
+          await speakText(node.text, node.speaker);
+          playedSpeech = true;
+        }
+
+        if (node.next) {
+          if (playedSpeech) {
+            scheduleAdvance(node.next, 250, isFromOpponentSync);
+          } else {
+            scheduleAdvance(node.next, getReadingDelay(node.text), isFromOpponentSync);
+          }
+        }
       }
       break;
 
@@ -611,12 +865,21 @@ function handleNode(node,isFromOpponentSync = false) {
     default:
       currentNode.value = node;
       isProcessing.value = false;
-      
+
       if (node.choices && node.choices.length > 0) {
-        handleChoiceNode(node);
-      } else {
+            handleChoiceNode(node);
+          } else {
+        let playedSpeech = false;
+        if (ttsEnabled.value && node.text && node.speaker !== '系统' && !isFromOpponentSync) {
+          await speakText(node.text, node.speaker);
+          playedSpeech = true;
+        }
         if (node.next) {
-          setTimeout(() => advanceToNode(node.next), getReadingDelay(node.text));
+          if (playedSpeech) {
+            scheduleAdvance(node.next, 250, isFromOpponentSync);
+          } else {
+            scheduleAdvance(node.next, getReadingDelay(node.text), isFromOpponentSync);
+          }
         }
       }
       break;
@@ -714,9 +977,7 @@ function executeChoice(index, isMyChoice = true) {
   // 推进到下一个节点
   const nextNodeId = choice.next;
   if (nextNodeId && nodeMap[nextNodeId]) {
-    setTimeout(() => {
-      advanceToNode(nextNodeId);
-    }, 800);
+    scheduleAdvance(nextNodeId, 800);
   } else {
     console.error(`选择的下一个节点不存在: ${nextNodeId}`);
     isProcessing.value = false;
@@ -743,36 +1004,48 @@ function getReadingDelay(text) {
   return delay;
 }
 
-function loadVoices() {
-  if ('speechSynthesis' in window) {
-    const loadVoicesHandler = () => {
-      const voices = window.speechSynthesis.getVoices();
-      voicesLoaded.value = voices.length > 0;
-    };
+// 统一安排推进，防止多重定时器导致连续跳过
+function scheduleAdvance(nodeId, delay = 0, isFromOpponentSync = false) {
+  if (nextAdvanceTimer) {
+    clearTimeout(nextAdvanceTimer);
+    nextAdvanceTimer = null;
+  }
+  nextAdvanceTimer = setTimeout(() => {
+    nextAdvanceTimer = null;
+    advanceToNode(nodeId, isFromOpponentSync);
+  }, delay);
+}
+
+// function loadVoices() {
+//   if ('speechSynthesis' in window) {
+//     const loadVoicesHandler = () => {
+//       const voices = window.speechSynthesis.getVoices();
+//       voicesLoaded.value = voices.length > 0;
+//     };
     
-    loadVoicesHandler();
-    window.speechSynthesis.onvoiceschanged = loadVoicesHandler;
-  }
-}
+//     loadVoicesHandler();
+//     window.speechSynthesis.onvoiceschanged = loadVoicesHandler;
+//   }
+// }
 
-function speakText(text, speaker) {
-  if (!ttsEnabled.value || !('speechSynthesis' in window)) return;
+// function speakText(text, speaker) {
+//   if (!ttsEnabled.value || !('speechSynthesis' in window)) return;
 
-  window.speechSynthesis.cancel();
+//   window.speechSynthesis.cancel();
   
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'zh-CN';
-  utterance.rate = 0.85;
-  utterance.pitch = speaker === '旁白' ? 0.9 : 1.0;
+//   const utterance = new SpeechSynthesisUtterance(text);
+//   utterance.lang = 'zh-CN';
+//   utterance.rate = 0.85;
+//   utterance.pitch = speaker === '旁白' ? 0.9 : 1.0;
   
-  const voices = window.speechSynthesis.getVoices();
-  const chineseVoices = voices.filter(v => v.lang.includes('zh'));
-  if (chineseVoices.length > 0) {
-    utterance.voice = chineseVoices[0];
-  }
+//   const voices = window.speechSynthesis.getVoices();
+//   const chineseVoices = voices.filter(v => v.lang.includes('zh'));
+//   if (chineseVoices.length > 0) {
+//     utterance.voice = chineseVoices[0];
+//   }
 
-  window.speechSynthesis.speak(utterance);
-}
+//   window.speechSynthesis.speak(utterance);
+// }
 
 function hasAvatar(speaker) {
   // 检查是否有对应的头像文件
@@ -814,6 +1087,10 @@ const goToSceneList = () => {
   padding: 16px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
   z-index: 1;
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 #three {
@@ -828,13 +1105,20 @@ const goToSceneList = () => {
 
 
 .header {
-  padding: 12px 16px;
-  /* background: url('../assets/backgrounds/wood.png'); */
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  max-width: min(380px, calc(100vw - 32px));
+  width: 380px;
+  padding-top: 100px;
+  padding-left: 56px;
+  padding-right: 50px;
+  padding-bottom: 50px;
+  justify-items: center;
+  background: url("https://cdn.jsdelivr.net/gh/lujiuj/hm-cdn-assents/assets/icon/cloud.png") no-repeat;
+  background-size: cover;
+  /* box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); */
 }
 
 .header h1 {
@@ -940,6 +1224,10 @@ const goToSceneList = () => {
 
 /* Controls */
 .controls {
+  position: absolute;
+  right: 16px;
+  top: 96px;
+  z-index: 110;
   display: flex;
   justify-content: flex-end;
   margin-bottom: 16px;
@@ -949,6 +1237,10 @@ const goToSceneList = () => {
   display: flex;
   align-items: center;
   gap: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  padding: 6px 10px;
+  color: #fff;
 }
 
 .toggleInput {
@@ -994,9 +1286,12 @@ const goToSceneList = () => {
 }
 
 /* Frame */
-.play-container{
+.play-container {
   display: flex;
   flex-direction: row;
+  margin-top: auto;
+  padding-bottom: 20px;
+  z-index: 20;
 }
 .frame {
   /* background: url('../assets/backgrounds/talk-back.png') no-repeat; */

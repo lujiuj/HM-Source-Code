@@ -3,6 +3,7 @@ import { supabase, ensureAnonymousAuth } from '../../config/supabase.js'
 export class SupabaseWorksStore {
   constructor(deps = {}) {
     this._supabase = deps.supabase || supabase
+    this._ensureAnonymousAuth = deps.ensureAnonymousAuth || ensureAnonymousAuth
     this._logger = deps.logger || console
   }
 
@@ -25,7 +26,7 @@ export class SupabaseWorksStore {
 
   async saveWork(work) {
     try {
-      const user = await ensureAnonymousAuth()
+      const user = await this._ensureAnonymousAuth()
       if (!user) throw new Error('User not authenticated')
 
       const record = {
@@ -34,16 +35,18 @@ export class SupabaseWorksStore {
         song_name: work.songName,
         media_id: work.mediaId,
         audio: work.audio,
-        analysis: work.analysis,
+        payload: work,
+        deleted_at: work.deletedAt || null,
         created_at: work.createdAt || new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        ...(work.id ? { id: work.id } : {})
       }
 
       const { data, error } = await this._supabase
         .from('works')
-        .insert(record)
+        .upsert(record, { onConflict: 'id' })
         .select()
-        .single()
+        .maybeSingle()
 
       if (error) {
         throw error
@@ -56,15 +59,19 @@ export class SupabaseWorksStore {
     }
   }
 
-  async listWorks(uid, options = {}) {
-    try {
-      const { limit = 100, offset = 0 } = options
+  async publishWork(work) {
+    const saved = await this.saveWork(work)
+    return saved?.id
+  }
 
-      const { data, error } = await this._supabase
-        .from('works')
-        .select('*')
-        .eq('user_id', uid)
-        .eq('deleted_at', null)
+  async listWorks(filter = {}) {
+    try {
+      const { userId, songId, includeDeleted = false, limit = 100, offset = 0 } = typeof filter === 'string' ? { userId: filter } : filter
+      const query = this._supabase.from('works').select('*')
+      if (userId) query.eq('user_id', userId)
+      if (songId) query.eq('song_id', songId)
+      if (!includeDeleted) query.is('deleted_at', null)
+      const { data, error } = await query
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1)
 
@@ -77,33 +84,36 @@ export class SupabaseWorksStore {
     }
   }
 
-  async deleteWork(workId) {
+  async softDeleteWork(workId, deletedAt = Date.now()) {
     try {
       const { error } = await this._supabase
         .from('works')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date(deletedAt).toISOString() })
         .eq('id', workId)
 
       if (error) {
         throw error
       }
     } catch (error) {
-      this._logger?.warn?.('[SupabaseWorksStore] deleteWork failed:', error)
+      this._logger?.warn?.('[SupabaseWorksStore] softDeleteWork failed:', error)
       throw error
     }
   }
 
   _transformRecord(record) {
+    const payload = record.payload || {}
     return {
-      id: record.id,
-      songId: record.song_id,
-      songName: record.song_name,
-      mediaId: record.media_id,
-      audio: record.audio,
-      analysis: record.analysis,
-      createdAt: record.created_at,
-      updatedAt: record.updated_at,
-      deletedAt: record.deleted_at
+      ...payload,
+      id: record.id || payload.id,
+      userId: record.user_id || payload.userId,
+      songId: record.song_id || payload.songId,
+      songName: record.song_name || payload.songName,
+      mediaId: record.media_id || payload.mediaId,
+      audio: record.audio ?? payload.audio,
+      mediaUrl: record.media_url ?? payload.mediaUrl,
+      createdAt: record.created_at ?? payload.createdAt,
+      updatedAt: record.updated_at ?? payload.updatedAt,
+      deletedAt: record.deleted_at ?? payload.deletedAt
     }
   }
 }

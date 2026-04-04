@@ -116,9 +116,8 @@ async function handlePracticeComplete(isEarlyFinish, payload) {
 
   // Save practice session
   try {
-    const infraMode = import.meta.env.VITE_INFRA_MODE || 'local'
     let mediaId = null
-    if (blob && infraMode === 'local') {
+    if (blob && infra.media && typeof infra.media.storeMedia === 'function') {
       try {
         const stored = await infra.media.storeMedia(blob, { userId: uid, songId: selectedSong.value.id, type: blob.type || 'audio/webm' })
         mediaId = stored?.id || null

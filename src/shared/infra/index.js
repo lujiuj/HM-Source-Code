@@ -87,6 +87,9 @@ export async function initInfra(mode) {
         await ensureAnonymousAuth()
         
         infraInstance = createSupabaseInfra()
+        if (typeof infraInstance.identity?.initialize === 'function') {
+          await infraInstance.identity.initialize()
+        }
         return infraInstance
       } catch (error) {
         console.warn('Supabase initialization failed, falling back to local mode:', error.message)
@@ -157,6 +160,11 @@ export function getInfra() {
     if (mode === 'supabase') {
       try {
         infraInstance = createSupabaseInfra()
+        if (typeof infraInstance.identity?.initialize === 'function') {
+          void infraInstance.identity.initialize().catch((error) => {
+            console.warn('Supabase background initialization failed:', error?.message || error)
+          })
+        }
       } catch (error) {
         console.warn('Supabase initialization failed, falling back to local mode:', error.message)
         infraInitMode = 'local'

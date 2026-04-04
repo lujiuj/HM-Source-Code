@@ -7,15 +7,14 @@ export class SupabaseMediaStore {
     this._logger = deps.logger || console
   }
 
-  async upload(file, options = {}) {
-    const { path, contentType, onProgress } = options
-    
-    const filePath = path || `uploads/${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
-    
+  async storeMedia(blob, metadata = {}) {
+    const filePath = metadata.path || `uploads/${metadata.userId || 'anon'}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+    const contentType = metadata.type || blob.type || 'application/octet-stream'
+
     const { data, error } = await this._supabase.storage
       .from(this._bucket)
-      .upload(filePath, file, {
-        contentType: contentType || file.type,
+      .upload(filePath, blob, {
+        contentType,
         upsert: false
       })
 
@@ -23,44 +22,52 @@ export class SupabaseMediaStore {
       throw new Error(`Upload failed: ${error.message}`)
     }
 
-    const { data: { publicUrl } } = this._supabase.storage
+    const { data: urlData, error: urlError } = this._supabase.storage
       .from(this._bucket)
       .getPublicUrl(filePath)
+
+    if (urlError) {
+      throw new Error(`Failed to resolve public url: ${urlError.message}`)
+    }
 
     return {
       id: data.path,
       path: data.path,
-      url: publicUrl
+      url: urlData.publicUrl
     }
   }
 
-  async getUrl(path) {
-    const { data: { publicUrl } } = this._supabase.storage
-      .from(this._bucket)
-      .getPublicUrl(path)
+  async getMediaUrl(mediaId) {
+    if (!mediaId) return null
 
-    return publicUrl
+    const { data, error } = this._supabase.storage
+      .from(this._bucket)
+      .getPublicUrl(mediaId)
+
+    if (error) {
+      throw new Error(`Failed to resolve public url: ${error.message}`)
+    }
+
+    return data.publicUrl
   }
 
-  async delete(path) {
+  async deleteMedia(mediaId) {
+    if (!mediaId) return
+
     const { error } = await this._supabase.storage
       .from(this._bucket)
-      .remove([path])
+      .remove([mediaId])
 
     if (error) {
       throw new Error(`Delete failed: ${error.message}`)
     }
   }
 
-  async download(path) {
-    const { data, error } = await this._supabase.storage
-      .from(this._bucket)
-      .download(path)
+  revokeObjectUrl() {
+    // Supabase storage exposes public URLs and does not use browser object URLs.
+  }
 
-    if (error) {
-      throw new Error(`Download failed: ${error.message}`)
-    }
-
-    return data
+  async upload(file, options = {}) {
+    return this.storeMedia(file, { path: options.path, type: options.contentType, userId: options.userId })
   }
 }

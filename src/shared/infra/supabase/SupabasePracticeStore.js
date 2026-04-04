@@ -12,8 +12,13 @@ export class SupabasePracticeStore {
   }
 
   async _isMediaReferencedByPublishedWork(uid, record) {
-    const mediaId = typeof record?.mediaId === 'string' ? record.mediaId : null
-    const songId = typeof record?.songId === 'string' ? record.songId : null
+    const mediaId = typeof record?.media_id === 'string'
+      ? record.media_id
+      : (typeof record?.mediaId === 'string' ? record.mediaId : null)
+    const songId = typeof record?.song_id === 'string'
+      ? record.song_id
+      : (typeof record?.songId === 'string' ? record.songId : null)
+
     if (!uid || !mediaId || !songId) return false
 
     try {
@@ -22,15 +27,17 @@ export class SupabasePracticeStore {
         .select('*')
         .eq('song_id', songId)
         .eq('user_id', uid)
-        .single()
+        .order('created_at', { ascending: false })
+        .limit(1)
 
-      if (error || !data) return false
-      if (data.deleted_at) return false
-      
-      const workMediaId = typeof data.media_id === 'string'
-        ? data.media_id
-        : (typeof data.audio?.storage_path === 'string' ? data.audio.storage_path : null)
-      
+      if (error || !Array.isArray(data) || data.length === 0) return false
+      const work = data[0]
+      if (work.deleted_at) return false
+
+      const workMediaId = typeof work.media_id === 'string'
+        ? work.media_id
+        : (typeof work.audio?.storage_path === 'string' ? work.audio.storage_path : null)
+
       return workMediaId === mediaId
     } catch (e) {
       this._logger?.warn?.('[SupabasePracticeStore] check work reference failed:', e)
@@ -41,9 +48,8 @@ export class SupabasePracticeStore {
   async savePracticeSession(uid, session) {
     if (!uid) throw new Error('SupabasePracticeStore.savePracticeSession(): uid is required')
 
-    const practiceId = session.practiceId || generatePracticeId()
+    const practiceId = session.practiceId || session.id || generatePracticeId()
     const now = Date.now()
-    
     const record = {
       user_id: uid,
       practice_id: practiceId,
@@ -54,6 +60,7 @@ export class SupabasePracticeStore {
       score: session.score || null,
       analysis: session.analysis || null,
       media_id: session.mediaId || null,
+      payload: session,
       created_at: new Date(now).toISOString(),
       updated_at: new Date(now).toISOString()
     }
@@ -66,7 +73,7 @@ export class SupabasePracticeStore {
       throw new Error(`Failed to save practice session: ${error.message}`)
     }
 
-    return { practiceId, savedAt: now }
+    return practiceId
   }
 
   async getPracticeSession(uid, practiceId) {
@@ -124,7 +131,7 @@ export class SupabasePracticeStore {
 
     if (record.media_id && this._mediaStore) {
       try {
-        await this._mediaStore.delete(record.media_id)
+        await this._mediaStore.deleteMedia(record.media_id)
       } catch (e) {
         this._logger?.warn?.('[SupabasePracticeStore] failed to delete media:', e)
       }
@@ -142,17 +149,21 @@ export class SupabasePracticeStore {
   }
 
   _transformRecord(record) {
+    const payload = record.payload || {}
     return {
-      practiceId: record.practice_id,
-      songId: record.song_id,
-      songName: record.song_name,
-      timestamp: record.timestamp,
-      durationMs: record.duration_ms,
-      score: record.score,
-      analysis: record.analysis,
-      mediaId: record.media_id,
-      createdAt: record.created_at,
-      updatedAt: record.updated_at
+      ...payload,
+      id: record.practice_id || payload.id,
+      practiceId: record.practice_id || payload.practiceId,
+      userId: record.user_id || payload.userId,
+      songId: record.song_id || payload.songId,
+      songName: record.song_name || payload.songName,
+      timestamp: record.timestamp ?? payload.timestamp,
+      durationMs: record.duration_ms ?? payload.durationMs ?? payload.duration,
+      score: record.score ?? payload.score,
+      analysis: record.analysis ?? payload.analysis,
+      mediaId: record.media_id ?? payload.mediaId,
+      createdAt: record.created_at ?? payload.createdAt,
+      updatedAt: record.updated_at ?? payload.updatedAt
     }
   }
 }
