@@ -18,8 +18,11 @@ function createQuery(response = {}) {
   const query = {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
+    in: vi.fn(() => query),
+    is: vi.fn(() => query),
     order: vi.fn(() => query),
     limit: vi.fn(() => query),
+    insert: vi.fn(() => query),
     range: vi.fn(async () => response.range || { data: null, error: null }),
     single: vi.fn(async () => response.single || { data: null, error: null }),
     maybeSingle: vi.fn(async () => response.maybeSingle || { data: null, error: null }),
@@ -271,5 +274,115 @@ describe('SupabaseMediaStore', () => {
     expect(publicUrl).toBe('https://example.com/demo-path')
 
     await expect(mediaStore.deleteMedia('uploads/demo-path')).resolves.toBeUndefined()
+  })
+})
+
+describe('SupabaseInteractionStore', () => {
+  it('supports danmaku, gifts, comments and interaction events', async () => {
+    const { SupabaseInteractionStore } = await import('../infra/supabase/SupabaseInteractionStore.js')
+
+    const interactionsRangeRows = [
+      {
+        id: 'dm_1',
+        work_id: 'work_1',
+        user_id: 'actor_1',
+        type: 'danmaku',
+        content: { text: '好听', timeMs: 1200, timestamp: 1700000100000, username: '甲' },
+        created_at: '2026-01-01T00:00:00.000Z',
+        read_at: null
+      },
+      {
+        id: 'gift_1',
+        work_id: 'work_1',
+        user_id: 'actor_1',
+        type: 'gift',
+        content: { type: 'flower', count: 2, timestamp: 1700000200000, username: '甲' },
+        created_at: '2026-01-01T00:01:00.000Z',
+        read_at: null
+      },
+      {
+        id: 'comment_1',
+        work_id: 'work_1',
+        user_id: 'actor_1',
+        type: 'comment',
+        content: { text: '唱得真好', timestamp: 1700000300000, username: '甲' },
+        created_at: '2026-01-01T00:02:00.000Z',
+        read_at: null
+      },
+      {
+        id: 'evt_1',
+        work_id: 'work_1',
+        user_id: 'owner_1',
+        type: 'comment_created',
+        content: {
+          targetUserId: 'owner_1',
+          workId: 'work_1',
+          actorSnapshot: { userId: 'actor_1', username: '甲', avatar: '' },
+          commentText: '唱得真好',
+          timestamp: 1700000400000
+        },
+        created_at: '2026-01-01T00:03:00.000Z',
+        read_at: null
+      }
+    ]
+
+    const supabase = createSupabaseStub({
+      interactions: {
+        single: {
+          data: {
+            id: 'inserted_1',
+            work_id: 'work_1',
+            user_id: 'actor_1',
+            type: 'comment',
+            content: { text: 'new comment', timestamp: 1700000500000 },
+            created_at: '2026-01-01T00:04:00.000Z',
+            read_at: null
+          },
+          error: null
+        },
+        range: { data: interactionsRangeRows, error: null },
+        update: { data: null, error: null }
+      }
+    })
+
+    const store = new SupabaseInteractionStore({ supabase, ensureAnonymousAuth: supabaseConfigMocks.ensureAnonymousAuth })
+
+    await expect(store.sendDanmaku('work_1', { userId: 'actor_1', text: '飘过', timestamp: 1700000000000 })).resolves.toBe('inserted_1')
+    await expect(store.sendGift('work_1', {
+      userId: 'actor_1',
+      username: '甲',
+      avatar: '',
+      actorSnapshot: { userId: 'actor_1', username: '甲', avatar: '' },
+      targetUserId: 'owner_1',
+      type: 'flower',
+      count: 2,
+      timestamp: 1700000001000
+    })).resolves.toBe('inserted_1')
+    await expect(store.addComment('work_1', {
+      userId: 'actor_1',
+      username: '甲',
+      avatar: '',
+      actorSnapshot: { userId: 'actor_1', username: '甲', avatar: '' },
+      targetUserId: 'owner_1',
+      text: '唱得真好',
+      timestamp: 1700000002000
+    })).resolves.toBe('inserted_1')
+
+    const danmaku = await store.listDanmaku('work_1', 30)
+    const gifts = await store.listGifts('work_1', 50)
+    const comments = await store.listComments('work_1', 50)
+    const events = await store.listInteractionEvents('owner_1', 50)
+
+    expect(danmaku.length).toBeGreaterThan(0)
+    expect(gifts.length).toBeGreaterThan(0)
+    expect(comments.length).toBeGreaterThan(0)
+    expect(events.length).toBeGreaterThan(0)
+    expect(events[0]).toEqual(expect.objectContaining({
+      id: 'evt_1',
+      type: 'comment_created',
+      targetUserId: 'owner_1'
+    }))
+
+    await expect(store.markInteractionEventsRead('owner_1', ['evt_1'], 1700000500000)).resolves.toBeUndefined()
   })
 })
